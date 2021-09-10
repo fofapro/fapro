@@ -30,7 +30,7 @@ fapro run -l :8080
 ### rdp 
 支持credssp ntlmv2 nla认证。
 可以配置显示的图片文件。
-![RDP演示](docs/rdp.jpg)
+![RDP演示](docs/rdp.gif)
 
 
 ## 配置文件格式
