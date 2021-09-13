@@ -1,15 +1,14 @@
 
 
-# linux非root用户运行fapro
-fapro为程序路径
-
+# Run FaPro without root privileges
+like nmap:
 sudo setcap cap_net_raw,cap_net_admin=eip fapro
 
-# windows powershell下输出的配置文件运行错误
-运行时提示
+# The configuration file generated under windows powershell cannot be run
+./fapro run prompt:
 panic: Fatal error config file: While parsing config: invalid character 'ÿ' looking for beginning of value
 
-因为powershell > 输出的文件包含UTF-8 BOM标记,程序读取错误，使用Out-File输出文件。
+Because the output encoding of powershell stdout redirect is UTF-8 with BOM, Use Out-File command to save the configuration file.
 ./fapro.exe genConfig -n 172.16.0.0/16 | Out-File -Encoding ASCII fapro.json
   
   

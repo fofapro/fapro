@@ -17,7 +17,6 @@ FaPro is a Fake Protocol Server tool.
 - Supported Running Modes:
   - [x] Local Machine
   - [x] Virtual Network
-
 - Supported Protocols:
   - [x] DNS
   - [x] DCE/RPC
@@ -39,20 +38,21 @@ FaPro is a Fake Protocol Server tool.
   - [x] SSH 
   - [x] Telnet 
   - [x] VNC
-
 - Use TcpForward to forward network traffic
 
 ### Protocol simulation demos
 #### Rdp
-Support credssp ntlmv2 nla authentication.
-You can configure the displayed picture.
+Support credssp ntlmv2 nla authentication. 
+Support configure the displayed picture.
 ![RDP demo](docs/rdp.gif)
 
 #### SSH 
 Support fake terminal commands, such as id, uid, whoami, etc.
+Account format: username:password:home:uid
+![SSH demo](docs/ssh.gif)
 
 #### HTTP
-You can use website clone.
+Support website clone.
 
 ### Quick Start
 
