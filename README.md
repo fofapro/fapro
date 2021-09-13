@@ -4,7 +4,7 @@
   <br>
 </h1>
 
-<h5 align="center">Free,Cross-platform,Single-file multi network protocol server simulator</h5>
+<h5 align="center">Free,Cross-platform,Single-file mass network protocol server simulator</h5>
 
 ![platform](https://img.shields.io/badge/platform-cross-important?color=%23189000)
 
