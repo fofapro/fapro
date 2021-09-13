@@ -3,10 +3,17 @@
 ## 常见问题
 <details>
 <summary>使用非root权限运行FaPro</summary>
+
+
 和nmap类似:
+
 sudo setcap cap_net_raw,cap_net_admin=eip fapro
 </details>
+
+<details>
 <summary>windows powershell下生成的配置文件无法运行</summary>
+
+
 运行./fapro run提示如下:
 
 panic: Fatal error config file: While parsing config: invalid character 'ÿ' looking for beginning of value
@@ -19,12 +26,17 @@ panic: Fatal error config file: While parsing config: invalid character 'ÿ' loo
 ## FAQ
 <details>
 <summary>Run FaPro without root privileges</summary>
+
+
 like nmap:
+
 sudo setcap cap_net_raw,cap_net_admin=eip fapro
 </details>
 
 <details>
 <summary>The configuration file generated under windows powershell cannot be run</summary>
+
+
 ./fapro run prompt:
 
 panic: Fatal error config file: While parsing config: invalid character 'ÿ' looking for beginning of value
