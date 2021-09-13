@@ -82,6 +82,9 @@ Run FaPro in verbose mode and start the web service on port 8080:
 ```shell
 fapro run -v -l :8080
 ```
+## Log analysis
+Use ELK to analyze protocol logs:
+![FaPro Kibana](docs/FaProLogs.jpg)
 
 ## Configuration
 This section contains the sample configuration used by FaPro.

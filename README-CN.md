@@ -82,6 +82,11 @@ fapro genConfig > fapro.json
 fapro run -v -l :8080
 ```
 
+## 日志分析
+使用ELK分析协议日志，例如:
+![FaPro Kibana](docs/FaProLogs.jpg)
+
+
 ## 配置文件
 配置文件的简单介绍:
 
