@@ -66,7 +66,7 @@ Support user login and interaction.
 ![IMAP & SMTP demo](docs/imap_smtp.gif)
 
 ### HTTP
-Support website clone, You need to install the chrome browser and ![chrome driver](https://chromedriver.chromium.org/downloads) to work.
+Support website clone, You need to install the chrome browser and [chrome driver](https://chromedriver.chromium.org/downloads) to work.
 
 ## Quick Start
 

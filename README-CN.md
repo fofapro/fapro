@@ -66,7 +66,7 @@ FaPro是一个服务端协议模拟工具,可以轻松启停多个网络服务�
 
 ### HTTP
 支持网站克隆。
-需要安装chrome浏览器和![chrome driver](https://chromedriver.chromium.org/downloads)才能使用。
+需要安装chrome浏览器和[chrome driver](https://chromedriver.chromium.org/downloads)才能使用。
 
 ## 使用指南
 
