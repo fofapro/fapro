@@ -62,7 +62,7 @@ FaPro是一个服务端协议模拟工具,可以轻松启停多个网络服务�
 ### IMAP & SMTP 
 支持用户登陆并进行交互。
 
-![IMAP & SMTP demo](docs/imap_smtp.gip)
+![IMAP & SMTP demo](docs/imap_smtp.gif)
 
 ### HTTP
 支持网站克隆。
