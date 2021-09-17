@@ -42,6 +42,7 @@ FaPro是一个服务端协议模拟工具,可以轻松启停多个网络服务�
   - [x] SSH 
   - [x] Telnet 
   - [x] VNC
+  - [x] IMAP
 - 使用TcpForward进行端口转发
 
 ## 协议模拟演示
@@ -58,8 +59,14 @@ FaPro是一个服务端协议模拟工具,可以轻松启停多个网络服务�
 账户格式: username:password:home:uid
 ![SSH demo](docs/ssh.gif)
 
+### IMAP & SMTP 
+支持用户登陆并进行交互。
+
+![IMAP & SMTP demo](docs/imap_smtp.gip)
+
 ### HTTP
 支持网站克隆。
+需要安装chrome浏览器和![chrome driver](https://chromedriver.chromium.org/downloads)才能使用。
 
 ## 使用指南
 
@@ -96,6 +103,7 @@ fapro run -v -l :8080
      "network": "127.0.0.1/32",
      "network_build": "localhost",
      "storage": null,
+     "geo_db": "/tmp/geoip_city.mmdb",
      "hosts": [
          {
              "ip": "127.0.0.1",
@@ -126,7 +134,8 @@ fapro run -v -l :8080
  - storage: 指定日志收集的存储, 支持sqlite, mysql, elasticsearch. 示例:
    - sqlite3:logs.db
    - mysql://user:password@tcp(127.0.0.1:3306)/logs
-   - es://http://127.0.0.1:9200 
+   - es://http://127.0.0.1:9200 (目前只支持Elasticsearch v7.x)
+ - geo_db: MaxMind geoip2数据库的文件路径, 用于生成ip地理位置信息. 如果使用了Elasticsearch日志存储,则不需要此字段，将会使用Elasticsearch自带的geoip生成地理位置。
  - hosts: 主机列表，每一项为一个主机配置
  - handlers: 服务列表，每一项为一个服务配置
  - handler: 服务名(协议名)
@@ -147,6 +156,7 @@ fapro run -v -l :8080
     "network": "172.16.0.0/24",
     "network_build": "userdef",
     "storage": "es://http://127.0.0.1:9200",
+    "geo_db": "",
     "hosts": [
         {
             "ip": "172.16.0.3",

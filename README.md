@@ -42,6 +42,7 @@ The goal is to support as many protocols as possible, and support as many deep i
   - [x] SSH 
   - [x] Telnet 
   - [x] VNC
+  - [x] IMAP
 - Use TcpForward to forward network traffic
 
 ## Protocol simulation demos
@@ -59,8 +60,13 @@ Support fake terminal commands, such as id, uid, whoami, etc.
 Account format: username:password:home:uid
 ![SSH demo](docs/ssh.gif)
 
+### IMAP & SMTP 
+Support user login and interaction.
+
+![IMAP & SMTP demo](docs/imap_smtp.gip)
+
 ### HTTP
-Support website clone.
+Support website clone, You need to install the chrome browser and ![chrome driver](https://chromedriver.chromium.org/downloads) to work.
 
 ## Quick Start
 
@@ -95,6 +101,7 @@ This section contains the sample configuration used by FaPro.
      "network": "127.0.0.1/32",
      "network_build": "localhost",
      "storage": null,
+     "geo_db": "/tmp/geoip_city.mmdb",
      "hosts": [
          {
              "ip": "127.0.0.1",
@@ -125,7 +132,8 @@ This section contains the sample configuration used by FaPro.
  - storage: Specify the storage used for log collection, support sqlite, mysql, elasticsearch. e.g.
    - sqlite3:logs.db
    - mysql://user:password@tcp(127.0.0.1:3306)/logs
-   - es://http://127.0.0.1:9200 
+   - es://http://127.0.0.1:9200   (currently only supports Elasticsearch 7.x)
+ - geo_db: MaxMind geoip2 database file path, used to generate ip geographic location information. if you use Elasticsearch storage, never need this field, it will be automatically generated using the geoip processor of Elasticsearch.
  - hosts: Each item is a host configuration.
  - handlers: Service configuration, the service configured on the host, each item is a service configuration.
  - handler: Service name (i.e., protocol name)
@@ -146,6 +154,7 @@ protocol access logs are saved to elasticsearch.
     "network": "172.16.0.0/24",
     "network_build": "userdef",
     "storage": "es://http://127.0.0.1:9200",
+    "geo_db": "",
     "hosts": [
         {
             "ip": "172.16.0.3",
