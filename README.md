@@ -43,7 +43,9 @@ The goal is to support as many protocols as possible, and support as many deep i
   - [x] Telnet 
   - [x] VNC
   - [x] IMAP
+  - [x] POP3
 - Use TcpForward to forward network traffic
+- Support tcp syn logging
 
 ## Protocol simulation demos
 ### Rdp
@@ -88,6 +90,10 @@ Run FaPro in verbose mode and start the web service on port 8080:
 ```shell
 fapro run -v -l :8080
 ```
+
+### Tcp syn logging
+For windows users, please install [winpcap](https://www.winpcap.org/install/) or [npcap](https://nmap.org/npcap/).
+
 ## Log analysis
 Use ELK to analyze protocol logs:
 ![FaPro Kibana](docs/FaProLogs.jpg)
@@ -97,11 +103,15 @@ This section contains the sample configuration used by FaPro.
 
 ```json
 {
-     "version": "0.33",
+     "version": "0.38",
      "network": "127.0.0.1/32",
      "network_build": "localhost",
      "storage": null,
      "geo_db": "/tmp/geoip_city.mmdb",
+     "hostname": "fapro1",
+     "use_logq": true,
+     "cert_name": "unknown",
+     "syn_dev": "any",
      "hosts": [
          {
              "ip": "127.0.0.1",
@@ -134,6 +144,10 @@ This section contains the sample configuration used by FaPro.
    - mysql://user:password@tcp(127.0.0.1:3306)/logs
    - es://http://127.0.0.1:9200   (currently only supports Elasticsearch 7.x)
  - geo_db: MaxMind geoip2 database file path, used to generate ip geographic location information. if you use Elasticsearch storage, never need this field, it will be automatically generated using the geoip processor of Elasticsearch.
+ - hostname: Specify the host field in the log.
+ - use_logq: Use local disk message queue to save logs, and then send it to remote mysql or Elasticsearch to prevent remote log loss.
+ - cert_name: Common name of the generated certificate.
+ - syn_dev: Specify the network interface used to capture tcp syn packets. If it is empty, the tcp syn packet will not be recorded. On windows, the device name is like "\Device\NPF_{xxxx-xxxx}".
  - hosts: Each item is a host configuration.
  - handlers: Service configuration, the service configured on the host, each item is a service configuration.
  - handler: Service name (i.e., protocol name)
@@ -150,10 +164,13 @@ and 172.16.0.5 run rpc, rdp service,
 protocol access logs are saved to elasticsearch.
 ```json
 {
-    "version": "0.33",
+    "version": "0.38",
     "network": "172.16.0.0/24",
     "network_build": "userdef",
     "storage": "es://http://127.0.0.1:9200",
+    "use_logq": true,
+    "cert_name": "unknown",
+    "syn_dev": "any",
     "geo_db": "",
     "hosts": [
         {

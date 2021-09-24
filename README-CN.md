@@ -43,7 +43,9 @@ FaPro是一个服务端协议模拟工具,可以轻松启停多个网络服务�
   - [x] Telnet 
   - [x] VNC
   - [x] IMAP
+  - [x] POP3
 - 使用TcpForward进行端口转发
+- 支持tcp syn请求记录
 
 ## 协议模拟演示
 ### Rdp
@@ -89,6 +91,10 @@ fapro genConfig > fapro.json
 fapro run -v -l :8080
 ```
 
+### Tcp syn记录
+对于windows用户，请先安装[winpcap](https://www.winpcap.org/install/)或[npcap](https://nmap.org/npcap/)。
+
+
 ## 日志分析
 使用ELK分析协议日志，例如:
 ![FaPro Kibana](docs/FaProLogs.jpg)
@@ -99,11 +105,15 @@ fapro run -v -l :8080
 
 ```json
 {
-     "version": "0.33",
+     "version": "0.38",
      "network": "127.0.0.1/32",
      "network_build": "localhost",
      "storage": null,
      "geo_db": "/tmp/geoip_city.mmdb",
+     "hostname": "fapro1",
+     "use_logq": true,
+     "cert_name": "unknown",
+     "syn_dev": "any",
      "hosts": [
          {
              "ip": "127.0.0.1",
@@ -122,7 +132,6 @@ fapro run -v -l :8080
          }
      ]
 }
-
 ```
 
  - version: 配置文件版本号
@@ -136,6 +145,10 @@ fapro run -v -l :8080
    - mysql://user:password@tcp(127.0.0.1:3306)/logs
    - es://http://127.0.0.1:9200 (目前只支持Elasticsearch v7.x)
  - geo_db: MaxMind geoip2数据库的文件路径, 用于生成ip地理位置信息. 如果使用了Elasticsearch日志存储,则不需要此字段，将会使用Elasticsearch自带的geoip生成地理位置。
+ - hostname: 指定日志中的host字段。
+ - use_logq: 使用基于本地磁盘的消息队列保存日志，然后发送到远程mysql或Elasticsearch,防止日志丢失。
+ - cert_name: 指定生成证书的公共名。
+ - syn_dev: 指定捕获tcp syn包使用的网卡，如果为空则不记录tcp syn包。在windows上，网卡名称类似于 "\Device\NPF_{xxxx-xxxx}"。
  - hosts: 主机列表，每一项为一个主机配置
  - handlers: 服务列表，每一项为一个服务配置
  - handler: 服务名(协议名)
@@ -152,10 +165,13 @@ fapro run -v -l :8080
 协议访问支持保存到elasticsearch。
 ```json
 {
-    "version": "0.33",
+    "version": "0.38",
     "network": "172.16.0.0/24",
     "network_build": "userdef",
     "storage": "es://http://127.0.0.1:9200",
+    "use_logq": true,
+    "cert_name": "unknown",
+    "syn_dev": "any",
     "geo_db": "",
     "hosts": [
         {
