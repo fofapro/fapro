@@ -1,5 +1,6 @@
 
 <h1 align="center">
+<img src="docs/fapro.png" alt="" width="32" height="32"/>
 ![logo](docs/fapro.png)
   FaPro
   <br>
