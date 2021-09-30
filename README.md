@@ -6,7 +6,9 @@
 
 <h5 align="center">Free,Cross-platform,Single-file mass network protocol server simulator</h5>
 
+[![latest release version](https://img.shields.io/github/v/release/fofapro/fapro)](https://github.com/fofapro/fapro/releases)
 ![platform](https://img.shields.io/badge/platform-cross-important?color=%23189000)
+[![discord](https://img.shields.io/discord/891889408524038155?label=discord&logo=Discord&color=blue)](https://discord.gg/Eaz9dzV4AP)
 
 ## [中文Readme](README-CN.md)
 
@@ -67,6 +69,11 @@ Support user login and interaction.
 
 ![IMAP & SMTP demo](docs/imap_smtp.gif)
 
+### Mysql 
+Support sql statement query interaction
+
+![Mysql demo](docs/mysql.gif)
+
 ### HTTP
 Support website clone, You need to install the chrome browser and [chrome driver](https://chromedriver.chromium.org/downloads) to work.
 
@@ -112,6 +119,7 @@ This section contains the sample configuration used by FaPro.
      "use_logq": true,
      "cert_name": "unknown",
      "syn_dev": "any",
+     "exclusions": [],
      "hosts": [
          {
              "ip": "127.0.0.1",
@@ -148,6 +156,7 @@ This section contains the sample configuration used by FaPro.
  - use_logq: Use local disk message queue to save logs, and then send it to remote mysql or Elasticsearch to prevent remote log loss.
  - cert_name: Common name of the generated certificate.
  - syn_dev: Specify the network interface used to capture tcp syn packets. If it is empty, the tcp syn packet will not be recorded. On windows, the device name is like "\Device\NPF_{xxxx-xxxx}".
+ - exclusions: Exclude remote ips from logs.
  - hosts: Each item is a host configuration.
  - handlers: Service configuration, the service configured on the host, each item is a service configuration.
  - handler: Service name (i.e., protocol name)
@@ -161,7 +170,7 @@ Create a virtual network, The subnet is 172.16.0.0/24, include 2 hosts,
 
 and 172.16.0.5 run rpc, rdp service,
 
-protocol access logs are saved to elasticsearch.
+protocol access logs are saved to elasticsearch, exclude the access log of 127.0.0.1.
 ```json
 {
     "version": "0.38",
@@ -172,6 +181,7 @@ protocol access logs are saved to elasticsearch.
     "cert_name": "unknown",
     "syn_dev": "any",
     "geo_db": "",
+    "exclusions": ["127.0.0.1"],
     "hosts": [
         {
             "ip": "172.16.0.3",

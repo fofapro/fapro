@@ -6,7 +6,9 @@
 
 <h5 align="center">免费、跨平台、单文件部署的网络协议服务端模拟器</h5>
 
+[![latest release version](https://img.shields.io/github/v/release/fofapro/fapro)](https://github.com/fofapro/fapro/releases)
 ![platform](https://img.shields.io/badge/platform-cross-important?color=%23189000)
+[![discord](https://img.shields.io/discord/891889408524038155?label=discord&logo=Discord&color=blue)](https://discord.gg/Eaz9dzV4AP)
 
 ## [README of English](README.md)
 
@@ -66,6 +68,11 @@ FaPro是一个服务端协议模拟工具,可以轻松启停多个网络服务�
 
 ![IMAP & SMTP demo](docs/imap_smtp.gif)
 
+### Mysql 
+支持sql语句查询交互。
+
+![Mysql demo](docs/mysql.gif)
+
 ### HTTP
 支持网站克隆。
 需要安装chrome浏览器和[chrome driver](https://chromedriver.chromium.org/downloads)才能使用。
@@ -114,6 +121,7 @@ fapro run -v -l :8080
      "use_logq": true,
      "cert_name": "unknown",
      "syn_dev": "any",
+     "exclusions": [],
      "hosts": [
          {
              "ip": "127.0.0.1",
@@ -149,6 +157,7 @@ fapro run -v -l :8080
  - use_logq: 使用基于本地磁盘的消息队列保存日志，然后发送到远程mysql或Elasticsearch,防止日志丢失。
  - cert_name: 指定生成证书的公共名。
  - syn_dev: 指定捕获tcp syn包使用的网卡，如果为空则不记录tcp syn包。在windows上，网卡名称类似于 "\Device\NPF_{xxxx-xxxx}"。
+ - exclusions: 从日志记录中排除指定的remote ip。
  - hosts: 主机列表，每一项为一个主机配置
  - handlers: 服务列表，每一项为一个服务配置
  - handler: 服务名(协议名)
@@ -162,7 +171,7 @@ fapro run -v -l :8080
 
 172.16.0.5 运行rpc、rdp服务
 
-协议访问支持保存到elasticsearch。
+协议访问日志保存到elasticsearch，排除远程ip为127.0.0.1的日志。
 ```json
 {
     "version": "0.38",
@@ -173,6 +182,7 @@ fapro run -v -l :8080
     "cert_name": "unknown",
     "syn_dev": "any",
     "geo_db": "",
+    "exclusions": ["127.0.0.1"],
     "hosts": [
         {
             "ip": "172.16.0.3",
