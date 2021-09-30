@@ -1,5 +1,6 @@
 
 <h1 align="center">
+![logo](docs/fapro.png)
   FaPro
   <br>
 </h1>
