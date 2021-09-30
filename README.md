@@ -6,8 +6,8 @@
 
 <h5 align="center">Free,Cross-platform,Single-file mass network protocol server simulator</h5>
 
-[![latest release version](https://img.shields.io/github/v/release/fofapro/fapro)](https://github.com/fofapro/fapro/releases)
 ![platform](https://img.shields.io/badge/platform-cross-important?color=%23189000)
+[![latest release version](https://img.shields.io/github/v/release/fofapro/fapro)](https://github.com/fofapro/fapro/releases)
 [![discord](https://img.shields.io/discord/891889408524038155?label=discord&logo=Discord&color=blue)](https://discord.gg/Eaz9dzV4AP)
 
 ## [中文Readme](README-CN.md)

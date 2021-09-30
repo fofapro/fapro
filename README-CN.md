@@ -6,8 +6,8 @@
 
 <h5 align="center">免费、跨平台、单文件部署的网络协议服务端模拟器</h5>
 
-[![latest release version](https://img.shields.io/github/v/release/fofapro/fapro)](https://github.com/fofapro/fapro/releases)
 ![platform](https://img.shields.io/badge/platform-cross-important?color=%23189000)
+[![latest release version](https://img.shields.io/github/v/release/fofapro/fapro)](https://github.com/fofapro/fapro/releases)
 [![discord](https://img.shields.io/discord/891889408524038155?label=discord&logo=Discord&color=blue)](https://discord.gg/Eaz9dzV4AP)
 
 ## [README of English](README.md)
