@@ -19,6 +19,8 @@ FaPro is a Fake Protocol Server tool, Can easily start or stop multiple network 
 
 The goal is to support as many protocols as possible, and support as many deep interactions as possible for each protocol.
 
+[Demo Site](https://faweb.fofa.so/)
+
 ## Features
 
 - Supported Running Modes:
@@ -47,8 +49,11 @@ The goal is to support as many protocols as possible, and support as many deep i
   - [x] VNC
   - [x] IMAP
   - [x] POP3
+  - [x] NTP
 - Use TcpForward to forward network traffic
 - Support tcp syn logging
+- Support icmp ping logging 
+- Support udp packet logging
 
 ## Protocol simulation demos
 ### Rdp
@@ -111,7 +116,7 @@ This section contains the sample configuration used by FaPro.
 
 ```json
 {
-     "version": "0.38",
+     "version": "0.40",
      "network": "127.0.0.1/32",
      "network_build": "localhost",
      "storage": null,
@@ -120,6 +125,8 @@ This section contains the sample configuration used by FaPro.
      "use_logq": true,
      "cert_name": "unknown",
      "syn_dev": "any",
+     "udp_dev": "any",
+     "icmp_dev": "any",
      "exclusions": [],
      "hosts": [
          {
@@ -151,12 +158,14 @@ This section contains the sample configuration used by FaPro.
  - storage: Specify the storage used for log collection, support sqlite, mysql, elasticsearch. e.g.
    - sqlite3:logs.db
    - mysql://user:password@tcp(127.0.0.1:3306)/logs
-   - es://http://127.0.0.1:9200   (currently only supports Elasticsearch 7.x)
+   - es://http://username:password@127.0.0.1:9200   (currently only supports Elasticsearch 7.x)
  - geo_db: MaxMind geoip2 database file path, used to generate ip geographic location information. if you use Elasticsearch storage, never need this field, it will be automatically generated using the geoip processor of Elasticsearch.
  - hostname: Specify the host field in the log.
  - use_logq: Use local disk message queue to save logs, and then send it to remote mysql or Elasticsearch to prevent remote log loss.
  - cert_name: Common name of the generated certificate.
  - syn_dev: Specify the network interface used to capture tcp syn packets. If it is empty, the tcp syn packet will not be recorded. On windows, the device name is like "\Device\NPF_{xxxx-xxxx}".
+ - udp_dev: Same as syn_dev, but for udp packet.
+ - icmp_dev: Same as syn_dev, but for icmp ping packet.
  - exclusions: Exclude remote ips from logs.
  - hosts: Each item is a host configuration.
  - handlers: Service configuration, the service configured on the host, each item is a service configuration.
@@ -171,18 +180,20 @@ Create a virtual network, The subnet is 172.16.0.0/24, include 2 hosts,
 
 and 172.16.0.5 run rpc, rdp service,
 
-protocol access logs are saved to elasticsearch, exclude the access log of 127.0.0.1.
+protocol access logs are saved to elasticsearch, exclude the access log of 127.0.0.1 and 8.8.8.8.
 ```json
 {
-    "version": "0.38",
+    "version": "0.40",
     "network": "172.16.0.0/24",
     "network_build": "userdef",
     "storage": "es://http://127.0.0.1:9200",
     "use_logq": true,
     "cert_name": "unknown",
     "syn_dev": "any",
+    "udp_dev": "any",
+    "icmp_dev": "any",
+    "exclusions": ["127.0.0.1", "8.8.8.8"],
     "geo_db": "",
-    "exclusions": ["127.0.0.1"],
     "hosts": [
         {
             "ip": "172.16.0.3",

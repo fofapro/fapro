@@ -19,6 +19,8 @@ FaPro是一个服务端协议模拟工具,可以轻松启停多个网络服务�
 
 目标是支持尽可能多的协议，每个协议尽可能提供深度的交互支持。
 
+[示例网站](https://faweb.fofa.so/)
+
 ## 特性
 
 - 支持的运行模式
@@ -47,8 +49,11 @@ FaPro是一个服务端协议模拟工具,可以轻松启停多个网络服务�
   - [x] VNC
   - [x] IMAP
   - [x] POP3
+  - [x] NTP
 - 使用TcpForward进行端口转发
 - 支持tcp syn请求记录
+- 支持ping请求记录
+- 支持udp数据包记录
 
 ## 协议模拟演示
 ### Rdp
@@ -113,7 +118,7 @@ fapro run -v -l :8080
 
 ```json
 {
-     "version": "0.38",
+     "version": "0.40",
      "network": "127.0.0.1/32",
      "network_build": "localhost",
      "storage": null,
@@ -122,6 +127,8 @@ fapro run -v -l :8080
      "use_logq": true,
      "cert_name": "unknown",
      "syn_dev": "any",
+     "udp_dev": "any",
+     "icmp_dev": "any",
      "exclusions": [],
      "hosts": [
          {
@@ -152,12 +159,14 @@ fapro run -v -l :8080
  - storage: 指定日志收集的存储, 支持sqlite, mysql, elasticsearch. 示例:
    - sqlite3:logs.db
    - mysql://user:password@tcp(127.0.0.1:3306)/logs
-   - es://http://127.0.0.1:9200 (目前只支持Elasticsearch v7.x)
+   - es://http://username:password@127.0.0.1:9200  (目前只支持Elasticsearch v7.x)
  - geo_db: MaxMind geoip2数据库的文件路径, 用于生成ip地理位置信息. 如果使用了Elasticsearch日志存储,则不需要此字段，将会使用Elasticsearch自带的geoip生成地理位置。
  - hostname: 指定日志中的host字段。
  - use_logq: 使用基于本地磁盘的消息队列保存日志，然后发送到远程mysql或Elasticsearch,防止日志丢失。
  - cert_name: 指定生成证书的公共名。
  - syn_dev: 指定捕获tcp syn包使用的网卡，如果为空则不记录tcp syn包。在windows上，网卡名称类似于 "\Device\NPF_{xxxx-xxxx}"。
+ - udp_dev: 与syn_dev相同，记录udp数据包。
+ - icmp_dev: 与syn_dev相同，记录icmp ping数据包。
  - exclusions: 从日志记录中排除指定的remote ip。
  - hosts: 主机列表，每一项为一个主机配置
  - handlers: 服务列表，每一项为一个服务配置
@@ -172,7 +181,7 @@ fapro run -v -l :8080
 
 172.16.0.5 运行rpc、rdp服务
 
-协议访问日志保存到elasticsearch，排除远程ip为127.0.0.1的日志。
+协议访问日志保存到elasticsearch，排除远程ip为127.0.0.1和8.8.8.8的日志。
 ```json
 {
     "version": "0.38",
@@ -182,8 +191,10 @@ fapro run -v -l :8080
     "use_logq": true,
     "cert_name": "unknown",
     "syn_dev": "any",
+    "udp_dev": "any",
+    "icmp_dev": "any",
+    "exclusions": ["127.0.0.1", "8.8.8.8"],
     "geo_db": "",
-    "exclusions": ["127.0.0.1"],
     "hosts": [
         {
             "ip": "172.16.0.3",
