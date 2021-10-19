@@ -1,0 +1,39 @@
+- hosts: sensors
+  gather_facts: no
+  tasks:
+    - name: check running
+      shell: pgrep fapro
+      timeout: 60
+      ignore_errors: yes
+      changed_when: false
+      register: fapro_status
+      ignore_unreachable: yes
+
+    - name: print result
+      debug:
+        msg: "{{ fapro_status }}"
+
+    - name: host unreachable
+      local_action: command nowx "{{ inventory_hostname }} unreachable."
+      when: fapro_status.unreachable
+      ignore_errors: true
+ 
+    - name: host failed
+      local_action: command nowx "{{ inventory_hostname }} [failed] {{ fapro_status.msg }}"
+      when: fapro_status.failed
+      ignore_errors: true
+      
+    - name: restart fapro
+      become: true
+      command: 'daemonize -c ./ -o $PWD/fapro.out -e $PWD/fapro.err  $PWD/fapro run -c {{ inventory_hostname }} -v'
+      when: fapro_status.failed
+      ignore_errors: true
+ 
+    - name: check fapro error
+      local_action: command nowx "{{ inventory_hostname }} restarted."
+      when: fapro_status.rc != 0
+      ignore_errors: true
+      
+      
+     
+      

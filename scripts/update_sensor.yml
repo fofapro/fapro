@@ -1,0 +1,46 @@
+- hosts: sensors
+  gather_facts: no
+  tasks:
+    - name: copy fapro configs
+      timeout: 200
+      copy:
+        src: './{{ inventory_hostname }}.json'
+        dest: ~/
+
+    - name: copy fapro binary zip
+      copy:
+        src: ./fapro.tgz
+        dest: ~/
+
+    - name: copy fapro webapps
+      synchronize:
+        src: ./webapps
+        dest: ~/
+
+    - name: kill running fapro
+      become: true
+      ignore_errors: yes
+      command: 'pkill fapro'
+
+    - name: remove old fapro
+      file:
+        state: absent
+        path: ~/fapro
+          
+    - name: install daemonize package
+      become: true
+      package:
+        name: daemonize
+        state: latest
+
+    - name: decompress fapro
+      command: "tar xvzf fapro.tgz"
+ 
+    - name: set fapro executable
+      file:
+        path: ~/fapro
+        mode: u+rx
+ 
+    - name: start fapro
+      become: true
+      command: 'daemonize -c ./ -o $PWD/fapro.out -e $PWD/fapro.err  $PWD/fapro run -c {{ inventory_hostname }} -v'
