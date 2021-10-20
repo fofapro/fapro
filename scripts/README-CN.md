@@ -4,7 +4,7 @@
 ## [README of English](README.md)
 
 ## ipclone.py 
-从fofa克隆服务配置的python脚本
+从[fofa](https://fofa.so/)克隆服务配置的python脚本
 
 使用前需要先设置FOFA_EMAIL和FOFA_KEY环境变量,并下载fapro
 
