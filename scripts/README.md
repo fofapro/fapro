@@ -5,7 +5,7 @@ Configurations and scripts for building a network scanning analysis platform.
 
 ## ipclone.py 
 
-Python script for cloning device configuration from [fofa](https://fofa.so/),
+Python script for cloning service configuration from [fofa](https://fofa.so/)
 
 You need:
 - a fofa account to set the FOFA_EMAIL and FOFA_KEY environment variables
@@ -27,7 +27,7 @@ docker-compose template for ELK configuration.
 **Notice:**
 - change **ELASTIC_PASSWORD** to you own password,
 - change **network.publish_host** to the server's public network ip address
-- modify the port mapping if you need
+- change the port mapping if you need
 
 Usage:
 ```shell 
@@ -47,15 +47,15 @@ ansible-playbook update_sensor.yml
 ```
 
 ## check.yml
-Ansible script for monitoring the fapro process of the sensor service.
+Ansible script for monitoring the fapro process of the sensor server.
 
 install norecon for wechat message notification, 
-if you need other message notification, modify nowx to other message notify command.
+
+if you need other message notification, change nowx to other message notification command.
 ```shell 
 pip3 install norecon
 
-# Configure WeChat notification and set WeChat push token according to the prompt.
-```shell 
+# Configure WeChat notification and set up WeChat message push token
 nowx 
 ```
 

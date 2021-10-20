@@ -1,15 +1,17 @@
 
 
 # 简介
-搭建网络扫描分析平台的相关配置及脚本
+用于搭建网络扫描分析平台的相关配置及脚本
 
 ## ipclone.py 
-从fofa克隆设备配置的python脚本，使用前需要先设置FOFA_EMAIL和FOFA_KEY环境变量,并下载fapro
+从fofa克隆服务配置的python脚本
+
+使用前需要先设置FOFA_EMAIL和FOFA_KEY环境变量,并下载fapro
 
 本地要安装chrome浏览器和chromedriver，用于网站克隆
 
 使用方式:
-```
+```shell
 # 查看使用帮助
 ./ipclone.py -h
 
@@ -20,9 +22,9 @@
 ## docker-compose.yml 
 配置ELK的docker-compose模板，注意：
 
-**修改ELASTIC_PASSWORD设置项的密码**，根据需要修改公网映射的端口
-   
-**修改network.publish_host为服务器的公网ip**
+- 修改**ELASTIC_PASSWORD**设置项的密码
+- 修改**network.publish_host**为服务器的公网ip
+- 根据需要修改公网映射的端口
 
 使用方式:
 ```shell 
@@ -44,7 +46,7 @@ ansible-playbook update_sensor.yml
 ## check.yml
 监控sensor服务进程的ansible脚本
 
-安装norecon,需要python3环境:
+安装norecon,用于微信消息通知:
 ```shell 
 pip3 install norecon
 
