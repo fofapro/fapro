@@ -1,7 +1,7 @@
-
-
 # 简介
 用于搭建网络扫描分析平台的相关配置及脚本
+
+## [README of English](README.md)
 
 ## ipclone.py 
 从fofa克隆服务配置的python脚本

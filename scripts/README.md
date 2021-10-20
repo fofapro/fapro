@@ -1,7 +1,7 @@
-
-
 # Description
 Configurations and scripts for building a network scanning analysis platform.
+
+## [中文Readme](README-CN.md)
 
 ## ipclone.py 
 
