@@ -1,8 +1,6 @@
 
 # 如何打造一个网络扫描分析平台 - Part I
-<div style="text-align: right;">
-<h5>如何搭建分布式的扫描日志收集系统</h5>
-</div>
+<h5 align="right">如何搭建分布式的扫描日志收集系统</h5>
 
 ### [English version](howto_1.md)
 

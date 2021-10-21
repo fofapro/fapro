@@ -1,8 +1,6 @@
 
 # How to build a network scanning analysis platform - Part I
-<div style="text-align: right;">
-<h5>Build a distributed scan log collection system</h5>
-</div>
+<h5 align="right">Build a distributed scan log collection system</h5>
 
 ### [中文版](howto_CN_1.md)
 
