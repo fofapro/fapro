@@ -255,6 +255,10 @@ fapro run -v -l :8080
 
 ```
 
+## 学习更多
+- [如何打造一个网络扫描分析平台 - Part I](./howto/howto_CN_1.md)
+- [Discord](https://discord.gg/Eaz9dzV4AP)
+
 ## 常见问题
 我们收集了一些[常见问题](FAQ.md). 报告issue前，请先看看常见问题集中是否有你要找的答案。
 

@@ -254,6 +254,10 @@ protocol access logs are saved to elasticsearch, exclude the access log of 127.0
 
 ```
 
+## Learn more
+- [How to build a network scanning analysis platform - Part I](./howto/howto_1.md)
+- [Discord](https://discord.gg/Eaz9dzV4AP)
+
 ## FAQ 
 We have collected some [frequently asked questions](FAQ.md). Before reporting an issue, please search if the FAQ has the answer to your problem.
 
