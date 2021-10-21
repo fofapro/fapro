@@ -1,7 +1,10 @@
 
 # 如何打造一个网络扫描分析平台 - Part I
+<div style="text-align: right;">
+<h5>如何搭建分布式的扫描日志收集系统</h5>
+</div>
 
-## [English version](howto_1.md)
+### [English version](howto_1.md)
 
 ## 简介
 
@@ -17,8 +20,6 @@
 ![image](./ip_detail.jpg)
 
 [示例网站](https://faweb.fofa.so/)
-
-本篇为系列第一篇: **如何搭建分布式的扫描日志收集系统**
 
 ## 技术选型
 
@@ -50,7 +51,7 @@ linux服务器若干台(最低配置即可)，用于放置扫描数据收集器(
 
 ### 本地ansible的配置
 
-设置.ssh/config中host，添加每台服务器的配置项:
+设置~/.ssh/config中host，添加每台服务器的配置项:
 
 ```shell
 Host sensor01 #主机名

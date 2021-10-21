@@ -1,7 +1,10 @@
 
 # How to build a network scanning analysis platform - Part I
+<div style="text-align: right;">
+<h5>Build a distributed scan log collection system</h5>
+</div>
 
-## [中文版](howto_CN_1.md)
+### [中文版](howto_CN_1.md)
 
 ## Description
 
@@ -18,8 +21,6 @@ The follows will show the current effect:
 ![image](./ip_detail.jpg)
 
 [Example website](https://faweb.fofa.so/)
-
-Part1: **Build a distributed scan log collection system**
 
 ## Technical selection
 
@@ -39,7 +40,7 @@ Log storage use[Elasticsearch](https://www.elastic.co/guide/index.html)，conven
 
 ![nice](./nice.jpg)
 
-Automation Platform use[ansible](https://docs.ansible.com/)，used for batch deployment and monitoring log collection nodes 
+Automation Platform use [ansible](https://docs.ansible.com/)，used for batch deployment and monitoring log collection nodes 
 
 ## Preparation
 Several Linux servers, Used to place the scan log collector (FaPro), close all service ports on the existing server to prevent the collected log records from being disturbed.
@@ -52,7 +53,7 @@ Install Ansible locally for the batch deployment of scanning data collection nod
 
 ### Configure ansible
 
-Set the host in .ssh/config and add configuration items for each server:
+Set the host in ~/.ssh/config and add configuration items for each server:
 ```shell
 Host sensor01 # host name
   HostName x.x.x.x # server ip address
@@ -68,6 +69,7 @@ Host dbserver
 If you use public-key authentication, use ssh-add to add the private key, and you should be able to login to the server using ssh dbserver in the terminal.
 
 Change the configuration file of ~/.ansible.cfg:
+
 ```ini
 [defaults]
 gather_timeout = 60
@@ -76,6 +78,7 @@ private_key_file = $HOME/private_key.pem # private key file
 ```
 
 Change ~/hosts.ini to specify the host group:
+
 ```ini
 [sensors] # The server list of the scan log collectors, corresponding to the host name in .ssh/config
 sensor01
@@ -92,7 +95,7 @@ git clone https://github.com/fofapro/fapro
 
 # Use the script and configuration of the scripts folder
 cd scripts
-``**
+```
 
 ### Configure log storage server
 
