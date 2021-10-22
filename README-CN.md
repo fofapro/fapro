@@ -175,7 +175,6 @@ fapro run -v -l :8080
  - handler: 服务名(协议名)
  - params: 设置服务支持的参数
  
-
 ### 示例
 使用子网172.16.0.0/24创建一个虚拟网络，包含2个主机:
 
@@ -256,6 +255,10 @@ fapro run -v -l :8080
 }
 
 ```
+
+### 一键克隆ip服务配置
+
+使用[脚本](scripts/README-CN.md)中的ipclone.py脚本，可以实现从[fofa](https://fofa.so)中克隆ip服务配置，快速生成真实设备的服务配置。
 
 ## 学习更多
 - [如何打造一个网络扫描分析平台 - Part I](./howto/howto_CN_1.md)
