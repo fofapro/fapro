@@ -50,6 +50,8 @@ The goal is to support as many protocols as possible, and support as many deep i
   - [x] IMAP
   - [x] POP3
   - [x] NTP
+  - [x] RTSP
+  - [x] PORTMAP
 - Use TcpForward to forward network traffic
 - Support tcp syn logging
 - Support icmp ping logging 

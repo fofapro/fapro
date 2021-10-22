@@ -78,6 +78,20 @@ def get_redis_version(data):
         return r.group(1)
     return "6.2.3"
 
+def get_rtsp_server(data):
+    r = re.search("Server: (.*?)[\r\n]", data)
+    if r:
+        return r.group(1)
+    return ""
+
+def get_port_mapping(data):
+    result = []
+    for row in data.split(','):
+        r = re.search("(\d+) v(\d) (\w+)\((\d+)\)", row)
+        if r:
+            result.append(f'{r.group(1)},{r.group(2)},{r.group(3).lower()},{r.group(4)}')
+    return result
+
 def get_eip_info(banner):
     ip = re.search("Device IP:\s+(\d+\.\d+\.\d+\.\d+)", banner)
     product = re.search("Product:\s+(.+)[\r\n]?", banner)
@@ -120,6 +134,12 @@ def gen_handler(ip, port, service, banner, deep_dump=True):
     elif service == "redis":
         handler['handler'] = 'redis'
         handler['params'] = {"server_version": get_redis_version(banner)}
+    elif service == "rtsp":
+        handler['handler'] = 'rtsp'
+        handler['params'] = {"server": get_rtsp_server(banner)}
+    elif service == "portmap":
+        handler['handler'] = 'portmap'
+        handler['params'] = {"mapping_table": get_port_mapping(banner)}
     elif service == "elastic":
         handler['handler'] = 'elasticsearch'
     elif service == "mqtt":

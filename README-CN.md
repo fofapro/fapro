@@ -50,6 +50,8 @@ FaPro是一个服务端协议模拟工具,可以轻松启停多个网络服务�
   - [x] IMAP
   - [x] POP3
   - [x] NTP
+  - [x] RTSP
+  - [x] PORTMAP
 - 使用TcpForward进行端口转发
 - 支持tcp syn请求记录
 - 支持ping请求记录
