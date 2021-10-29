@@ -261,6 +261,8 @@ protocol access logs are saved to elasticsearch, exclude the access log of 127.0
 
 Use the **ipclone.py** script in [Scripts](scripts/README.md), You can clone the ip service configuration from [fofa](https://fofa.so) to quickly generate the service configuration of the real machine.
 
+![fofa_clone](docs/fofa_clone.gif)
+
 ## Learn more
 - [How to build a network scanning analysis platform - Part I](./howto/howto_1.md)
 - [Discord](https://discord.gg/Eaz9dzV4AP)

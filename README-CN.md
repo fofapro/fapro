@@ -262,6 +262,8 @@ fapro run -v -l :8080
 
 使用[脚本](scripts/README-CN.md)中的ipclone.py脚本，可以实现从[fofa](https://fofa.so)中克隆ip服务配置，快速生成真实设备的服务配置。
 
+![fofa_clone](docs/fofa_clone.gif)
+
 ## 学习更多
 - [如何打造一个网络扫描分析平台 - Part I](./howto/howto_CN_1.md)
 - [Discord](https://discord.gg/Eaz9dzV4AP)
