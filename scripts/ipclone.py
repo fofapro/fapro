@@ -100,6 +100,24 @@ def get_eip_info(banner):
                 "product_name": product.group(1)}
     return None
 
+def get_sip_body(banner):
+    body = re.search("\r\n\r\n(.*)$", banner, re.MULTILINE | re.DOTALL)
+    if body:
+        return body.group(1)
+    return ""
+
+def get_postgres_auth(banner):
+    method = re.search("Authentication type:\s+(\w+)", banner)
+    if method:
+        auth = method.group(1).lower()
+        if auth == "plaintext":
+            return "plain"
+        elif auth == "md5":
+            return "md5"
+        else:
+            return "none"
+    return "none"
+
 def gen_handler(ip, port, service, banner, deep_dump=True):
     print(f'gen handler for {ip} - {port} - {service}')
     handler = {"port": port}
@@ -148,6 +166,14 @@ def gen_handler(ip, port, service, banner, deep_dump=True):
     elif service == "mqtt-ssl":
         handler['handler'] = 'mqtt'
         handler['params'] = {"ssl": True}
+    elif service == "sip":
+        handler['handler'] = 'sip'
+        handler['params'] = {"body": get_sip_body(banner)}
+    elif service == "postgres":
+        handler['handler'] = 'postgres'
+        handler['params'] = {"auth": get_postgres_auth(banner),
+                             "server_version": "14.0",
+                             "accounts": ["postgres:123456", "root:postgres"]}
     elif service == "iec-104":
         handler['handler'] = 'iec104'
     elif service == "ethernetip":
@@ -175,11 +201,11 @@ def clone_device(ip, hostname, store, deep_dump):
     handlers = []
     proced = []
     for d in data:
-        if d[1] and (not d[1] in proced):
+        if d[1] and (not d[0] in proced):
             h = gen_handler(ip, d[0], d[1], d[2], deep_dump)
             if h:
                 handlers.append(h)
-                proced.append(d[1])
+                proced.append(d[0])
     result = {"version": "0.40",
               "network": "127.0.0.1/32",
               "network_build": "localhost",
@@ -215,9 +241,10 @@ def parse_args():
     return parser.parse_args()
 
 
-args = parse_args()
-r = clone_device(args.ip, args.name, args.storage, args.deep_dump)
-out_file = args.name+'.json'
-with open(out_file, "w") as w:
-    json.dump(r, w, ensure_ascii=True, indent=2)
-    print(f'clone ip config to {out_file} over.')
+if __name__ == "__main__":
+    args = parse_args()
+    r = clone_device(args.ip, args.name, args.storage, args.deep_dump)
+    out_file = args.name+'.json'
+    with open(out_file, "w") as w:
+        json.dump(r, w, ensure_ascii=True, indent=2)
+        print(f'clone ip config to {out_file} over.')

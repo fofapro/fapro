@@ -52,6 +52,8 @@ The goal is to support as many protocols as possible, and support as many deep i
   - [x] NTP
   - [x] RTSP
   - [x] PORTMAP
+  - [x] POSTGRES
+  - [x] SIP
 - Use TcpForward to forward network traffic
 - Support tcp syn logging
 - Support icmp ping logging 
