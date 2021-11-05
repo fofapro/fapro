@@ -52,8 +52,11 @@ The goal is to support as many protocols as possible, and support as many deep i
   - [x] NTP
   - [x] RTSP
   - [x] PORTMAP
-  - [x] POSTGRES
+  - [x] PostgreSQL
   - [x] SIP
+  - [x] SSDP
+  - [x] BACnet
+  - [x] Oracle TNS
 - Use TcpForward to forward network traffic
 - Support tcp syn logging
 - Support icmp ping logging 
@@ -83,6 +86,11 @@ Support user login and interaction.
 Support sql statement query interaction
 
 ![Mysql demo](docs/mysql.gif)
+
+### Oracle and BACnet
+Currently only support nmap fingerprint spoofing
+
+![tns and BACnet demo](docs/oracle_bacnet.gif)
 
 ### HTTP
 Support website clone, You need to install the chrome browser and [chrome driver](https://chromedriver.chromium.org/downloads) to work.
@@ -120,7 +128,7 @@ This section contains the sample configuration used by FaPro.
 
 ```json
 {
-     "version": "0.40",
+     "version": "0.43",
      "network": "127.0.0.1/32",
      "network_build": "localhost",
      "storage": null,
@@ -187,7 +195,7 @@ and 172.16.0.5 run rpc, rdp service,
 protocol access logs are saved to elasticsearch, exclude the access log of 127.0.0.1 and 8.8.8.8.
 ```json
 {
-    "version": "0.40",
+    "version": "0.43",
     "network": "172.16.0.0/24",
     "network_build": "userdef",
     "storage": "es://http://127.0.0.1:9200",
