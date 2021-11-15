@@ -2,7 +2,7 @@
 <h1 align="center">
 如何打造一个网络扫描分析平台 - Part II
 </h1>
-<h5 align="right">如何搭建分布式的扫描日志收集系统</h5>
+<h5 align="right">如何分析扫描日志</h5>
 <br/>
 
 ### [English version](howto_2.md)
@@ -10,7 +10,7 @@
 ## 简介
 在[上一篇](howto_CN_1.md)我们介绍了如何搭建分布式网络扫描日志收集系统, 现在已经收集了大量的日志，如何从日志中获取想要的知识？还需要进一步进行分析。
 
-还记得我们最初的目标么: 要找到是哪些ip在进行扫描？ 这些扫描的目的是什么？这些ip分别属于哪个组织？
+还记得我们最初的目标么: 要找到是哪些ip在进行扫描？这些ip分别属于哪个组织？这些组织扫描的目的是什么？
 本篇将介绍如何对收集的日志进行简单的分析，并创建规则。
     
 [示例网站](https://faweb.fofa.so/)
@@ -26,7 +26,7 @@
 如果对elastic查询不熟悉，可以先借助kibana查询相应的图表，再使用inpect查看相应的查询语句，来获取elastic查询。
 
 比如统计查询每个ip的icmp_ping次数，借助kibana的图表功能:
-![icmp ping count](../docs/icmp_ping_count.gif)
+![icmp ping count](icmp_ping_count.gif)
 
 获取elastic查询语句后，把它转换为python代码:
 ```python 
@@ -186,34 +186,34 @@ pprint.pprint(http_info)
 
 将所有这些信息收集，归类到新的分析库之后，就可以对ip信息进行更高层次的分析，比如使用faweb查看[45.146.164.110](https://faweb.fofa.so/ip_detail/?ip=45.146.164.110):
 
-![45.146.164.110](../docs/45.146.164.110.png)
+![45.146.164.110](45.146.164.110.png)
 
 可以看到45.146.164.110访问了多个协议，而没有做端口探测，因此推测它很可能是一个协议分析工具，从端口访问记录来看，随着探测到的端口增多，协议识别访问次数也增多。 从http_url来看，它尝试识别几种web应用。
 
 再来看一个[220.174.25.172](https://faweb.fofa.so/ip_detail/?ip=220.174.25.172):
 
-![220.174.25.172](../docs/ssh_burte_220-174-25-172.png)
+![220.174.25.172](ssh_burte_220-174-25-172.png)
 
 可以看到这是一个ssh爆破工具，可以看到它关心哪些端口，以及每天尝试爆破的次数。
 
 至此，通过使用elastic查询建立规则，并入库，就可以实现一个你自己的[greynoise](https://www.greynoise.io/viz/ip/45.146.164.110)
 
-在[fapro analysis](https://faweb.fofa.so/analysis/)可以看到每天、每周、每月的ip数据统计信息。
-![fapro ana](../docs/analysis.jpg)
+在[fapro analysis](https://faweb.fofa.so/analysis/)可以看到每天、每周、每月的ip数据量统计及相关的top信息。
+![fapro ana](analysis.jpg)
 
 ## 更进一步
 还记得我们是要对进行扫描探测的ip进行归类，下一步就是根据上面汇总的分析库，进一步使用数据分析、深度学习等方式对ip行为进行聚类，这是一项有挑战的工作，我们已经初步取得一些进展，对一些进行扫描的组织进行分类:
-[classification](../docs/classification.jpg)
+[classification](classification.jpg)
 
 找到了一些不常见的组织,比如:
-[trustwave](../docs/trustwave.jpg)
-[quintex](../docs/quintex.jpg)
-[netsecscan](../docs/netsecscan.jpg)
-[netsystemsresearch](../docs/netsystemsresearch.jpg)
-[cyber.casa](../docs/cyber.casa.jpg)
-[shadowserver](../docs/shadowserver.jpg)
-[internet-census](../docs/internet-census.jpg)
-[recyber](../docs/recyber.jpg)
+[trustwave](trustwave.jpg)
+[quintex](quintex.jpg)
+[netsecscan](netsecscan.jpg)
+[netsystemsresearch](netsystemsresearch.jpg)
+[cyber.casa](cyber.casa.jpg)
+[shadowserver](shadowserver.jpg)
+[internet-census](internet-census.jpg)
+[recyber](recyber.jpg)
 
 接下来还有很多分析工作要做，敬请期待！
 
