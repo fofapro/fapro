@@ -21,7 +21,7 @@ The follows will show the current effect:
 ![image](./search_3389.jpg)
 ![image](./ip_detail.jpg)
 
-[Example website](https://faweb.fofa.so/)
+[Demo website](https://faweb.fofa.so/)
 
 ## Technical selection
 

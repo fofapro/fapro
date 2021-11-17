@@ -1,102 +1,40 @@
-
 <h1 align="center">
-如何打造一个网络扫描分析平台 - Part II
+How to build a network scanning analysis platform - Part I
 </h1>
-<h5 align="right">如何分析扫描日志</h5>
+<h5 align="right">Build a distributed scan log collection system</h5>
 <br/>
 
-### [English version](howto_2.md)
+### [中文版](howto_CN_2.md)
 
-## 简介
-在[上一篇](howto_CN_1.md)我们介绍了如何搭建分布式网络扫描日志收集系统, 现在已经收集了大量的日志，如何从日志中获取想要的知识？需要进行数据分析，什么是数据分析？ 就是提出一个问题，从数据中去寻找答案。
+## Description
+In the [previous article](howto_1.md), we introduced how to build a distributed scan log collection system. Now that a lot of logs have been collected, how to obtain the desired knowledge from the logs? We need data analysis.
 
-我们尝试着从数据中回答一些问题：
+Recall our original goal: to find out which IPs doing scanning? Which organization these IPs belong to? What is the purpose of these organization scans?
+This tutorial will introduce how to perform a simple analysis on the collected logs and
+create ip analysis rules.
 
-- 每天有多少ip在进行扫描？
-![ip count by day](./ip_count_by_day.jpg)
-可以看到从2021-10-15日之后，平均每天有2万个ip在进行扫描
+[Demo website](https://faweb.fofa.so/)
 
-那么进行大范围ip扫描的数量趋势呢？
-![ip count by breadth gt 1](./breadth_gt_1_ips_by_day.jpg)
-有7000个左右的ip每天在进行大范围的扫描
+## Rules introduction
+Because the logs collected by FaPro are scattered, every ip access request will generate a lot of logs. The log message types include tcp_syn, icmp_ping, udp_packet, and protocol interaction logs.
 
-再来看看censys每天扫描的ip数量是多少？
-![censys ip by day](./censys_count_by_day.jpg)
-能看到censys每天有将近280个ip在进行扫描
+To analyze the behavior of a single IP, We need a way to aggregate these logs based on ip, we call it aggregation rule. These rules are implemented through elasticsearch aggregation queries, we need to write elasticsearch queries to extract the corresponding data.
 
-censys每天进行大范围扫描的ip数量是多少？
-![censys massive scanner by day](./censys_massive_count_by_day.jpg)
-能看到censys每天有将近180个ip在进行大范围扫描
+How to define rules? Which dimensions of data do we want to aggregate? You need to define it yourself. Here are a few simple rules.
 
-再看看shodan
-![shodan scanner by day](./shodan_count_by_day.jpg)
-能看到每天有35个ip在进行扫描。
-
-shodan大范围扫描的ip数量呢?
-![shodan massive scanner by day](./shodan_massive_count_by_day.jpg)
-平均每天有25个ip在进行大范围扫描
-
-再来看看binaryedge的扫描ip数量：
-![binaryedge scanner by day](./binaryedge_count_by_day.jpg)
-比较不稳定，大概在50个左右
-
-binaryedge大范围扫描的ip数量?
-![binaryedge massive scanner by day](./binaryedge_massive_count_by_day.jpg)
-大概有10个ip在进行大范围扫描
-
-rapid7是怎么进行扫描的？
-![rapid7 scanner by day](./rapid7_count_by_day.jpg)
-能看到中间会休息一周然后突然多出大量ip进行扫描任务。
-
-这些ip都在关心哪些端口？来自哪个国家？扫描范围有多广？访问了哪些服务？
-![ip summary](./summary.jpg)
-可以在[faweb](https://faweb.fofa.so/analysis/)上查看
+Summarize the ip log message by day, aggregation the number of tcp_syn visits, which ports have been visited; the number of icmp_ping visits, the ports accessed by udp_packet, and the number of visits corresponding to each port, etc.
 
 
-再以端口为线索，看看大范围扫描器都在关心哪些端口？ 
-![masser scanner port](./port_breadth_b5_ports.jpg)
-可以看到，大部分都集中在10000端口以下。 后面的27017、49152端口访问数量也比较大，我们来找找原因。
+In the next section, we will describe how to write elasticsearch queries for these rules.
 
-在[faweb中搜索port:27017](https://faweb.fofa.so/result/?word=port%3A27017),能看到有2000多条结果，
-27017是mongodb的常用端口，因此各家的互联网扫描引擎也比较关注。
-再看看关心27017端口的ip还会关心哪些端口:
-![related 27017](./port_27017_result.jpg)
-基本上是互联网扫描器会关心的常见服务端口。
+## Write rules
 
-来看下其中的一个ip:
-![27017 detail ip](./port_27017_ip.jpg)
-它是recyber的一个扫描器。再看其它几个ip也是扫描器的行为。
+If you are not familiar with elastic query, you can use kibana to display the corresponding chart first, and then use inpect to view the corresponding query statement to obtain the elastic query statement.
 
-再看看[port:49152](https://faweb.fofa.so/result/?word=port%3A49152), 看看其中一个ip:
-![167.248.133.18](./167.248.133.18.png)
-看rdns信息，应该是censys的ip地址，再看看它关心的端口列表，找几个端口,比如50995, 20201, 40000, 17777, 47001, 49152,来看看各个互联网扫描平台上有多少条独立ip的收录:
-
-| 平台               |     50995 |     20201 | 40000     |   17777 |     47001 | 49152      |
-| fofa.so            |         1 |        82 | 1,280,784 |      26 |        39 | 5,497,110  |
-| zoomeye.org        |         0 |         0 | 2,018,912 |       0 |         0 | 5,762,264  |
-| quake.360.cn       |         7 |        18 | 47        |       2 |       483 | 3,546,927  |
-| shodan             |         2 |        43 | 39        |       4 |         4 | 1,488,551  |
-| censys             | 1,083,024 | 2,722,622 | 1,748,078 | 311,021 | 2,827,492 | 2,054,990  |
-
-
-下面来介绍如何对收集到的原始日志进行简单的分析，并创建规则来回答上面这些问题。
-    
-[示例网站](https://faweb.fofa.so/)
-
-## 规则介绍
-因为FaPro收集的日志是分散的，每个ip的访问请求会分散为很多条日志，目前主要的日志种类有tcp_syn, icmp_ping, udp_packet,以及协议交互的日志。
-
-针对单个ip的行为分析，就需要把这些分散的日志按照一定的规则进行聚合，如何定义规则？我们想看到哪些维度的数据？就需要自己去分析，这里介绍几种简单的规则。
-
-首先根据时间段对ip的日志数据进行汇总，比如tcp_syn访问次数，访问了哪些端口; icmp_ping访问次数，udp_packet访问的端口，及每个端口对应的访问次数等，为了方便，这里统一按天进行归类。
-
-## 编写规则
-如果对elastic查询不熟悉，可以先借助kibana查询相应的图表，再使用inpect查看相应的查询语句，来获取elastic查询。
-
-比如统计查询每个ip的icmp_ping次数，借助kibana的图表功能:
+For example, aggregate query the icmp_ping times of each ip, with the help of kibana's chart:
 ![icmp ping count](icmp_ping_count.gif)
 
-获取elastic查询语句后，把它转换为python代码:
+After obtaining the elastic query statement, convert it to python code:
 ```python 
 top_ip_icmp_ping = es.search(index="fapro",
                              aggs={
@@ -133,7 +71,7 @@ top_ip_icmp_ping = es.search(index="fapro",
 pprint.pprint(top_ip_icmp_ping['aggregations']['ips']['buckets'])
 ```
 
-不过这个查询的是所有日期的数据，我们需要按天查询，并且对聚合结果进行分页查询，防止一次查询的数据过多，超过elastic的限制:
+However, this query is for all data, we need to query by day, and perform paginating aggregations results:
 ```python 
 def all_ip_count(day, q, ip_aggs=None, page_size=1000):
     "get all ip count info by day"
@@ -151,29 +89,28 @@ def all_ip_count(day, q, ip_aggs=None, page_size=1000):
         res += r['aggregations']['ips']['buckets']
     return res
 
-## 获取2021-10-20的每个ip的icmp_ping消息计数
+## get count of icmp_ping messages for each ip on 2021-10-20
 ping_info = all_ip_count("2021-10-20", 'message.keyword:"icmp_ping"')
 
-## 获取2021-10-20的每个ip的tcp_syn消息计数
+## get count of tcp_syn messages for each ip on 2021-10-20
 syn_info = all_ip_count("2021-10-20", 'message.keyword:"tcp_syn"')
 
 local_port_agg = {"ports": {"terms": {"field": "local_port",
                                       "size": 1000}}}
-
-## 获取2021-10-20的每个ip的tcp_syn消息的本地端口计数 (即这个ip通过tcp syn访问了本地端口多少次)
+## get the local_port count of tcp_syn messages for each ip on 2021-10-20
 ip_port_info = all_ip_count("2021-10-20", 'message.keyword:"tcp_syn"', ip_aggs = local_port_agg, page_size = 100)
 
 pprint.pprint(ip_port_info[0])
-### 输出结果
-{'doc_count': 1939, # tcp_syn消息次数
+### output result
+{'doc_count': 1939, # tcp_syn message count
  'key': '94.232.47.190',
- 'ports': {'buckets': [{'doc_count': 1937, 'key': 3389}, # 3389访问了1937次
-                       {'doc_count': 2, 'key': 3390}], # 3390访问了2次
+ 'ports': {'buckets': [{'doc_count': 1937, 'key': 3389}, # 3389 visits 1937 times
+                       {'doc_count': 2, 'key': 3390}], # 3390 visits 2 times
            'doc_count_error_upper_bound': 0,
            'sum_other_doc_count': 0}}
 ```
 
-以94.232.47.190为例，访问了3389和3390端口,现在获取是否建立tcp连接信息:
+Take 94.232.47.190 as an example, it has visited ports 3389 and 3390, and now it obtains the information about whether to establish a tcp connection:
 ```python 
 tcp_info = query("2021-10-20", 'remote_ip:"94.232.47.190" AND message.keyword:"close conn"',
                  aggs=local_port_agg,
@@ -185,9 +122,9 @@ pprint.pprint(tcp_info)
                             'doc_count_error_upper_bound': 0,
                             'sum_other_doc_count': 0}}}
 ```
-可以看到，3389和3390的端口进行了tcp握手，建立了连接。
+As you can see, ports 3389 and 3390 have carried out a tcp handshake and a connection is established.
 
-接下来，查询rdp访问使用的cookie信息，以获取更进一步的行为:
+Next, query the cookie information used by rdp to obtain further ip behavior:
 ```python 
 rdp_cookie_agg = {"cookies": {"terms": {"field": "cookie.keyword", "size": 100}}}
 rdp_cookie_info = query("2021-10-20", 'remote_ip:"94.232.47.190" AND protocol:"rdp" AND cookie:"*"',
@@ -266,6 +203,5 @@ pprint.pprint(http_info)
 
 至此，通过使用elastic查询建立规则，并入库，就可以实现一个你自己的[greynoise](https://www.greynoise.io/viz/ip/45.146.164.110)
 
-# 结语
-
-至此，已经完成了初步的规则分析及归类。更深入的行为分析，扫描意图识别还需要更多工作要做，敬请期待第三篇。
+在[fapro analysis](https://faweb.fofa.so/analysis/)可以看到每天、每周、每月的ip数据量统计及相关的top信息。
+![fapro ana](analysis.jpg)
