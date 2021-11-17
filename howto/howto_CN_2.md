@@ -8,59 +8,51 @@
 ### [English version](howto_2.md)
 
 ## 简介
-在[上一篇](howto_CN_1.md)我们介绍了如何搭建分布式网络扫描日志收集系统, 现在已经收集了大量的日志，如何从日志中获取想要的知识？需要进行数据分析，什么是数据分析？ 就是提出一个问题，从数据中去寻找答案。
+在[上一篇](howto_CN_1.md)我们介绍了如何搭建分布式网络扫描日志收集系统, 现在已经收集了大量的日志，如何从日志中获取想要的知识？需要进行数据分析，提出一个问题，然后从数据中去寻找答案。
 
 我们尝试着从数据中回答一些问题：
 
 - 每天有多少ip在进行扫描？
 ![ip count by day](./ip_count_by_day.jpg)
-可以看到从2021-10-15日之后，平均每天有2万个ip在进行扫描
 
-那么进行大范围ip扫描的数量趋势呢？
+- 那么进行大范围ip扫描的数量趋势呢？
 ![ip count by breadth gt 1](./breadth_gt_1_ips_by_day.jpg)
-有7000个左右的ip每天在进行大范围的扫描
 
-再来看看censys每天扫描的ip数量是多少？
+- 再来看看censys每天扫描的ip数量是多少？
 ![censys ip by day](./censys_count_by_day.jpg)
-能看到censys每天有将近280个ip在进行扫描
 
-censys每天进行大范围扫描的ip数量是多少？
+- censys每天进行大范围扫描的ip数量是多少？
 ![censys massive scanner by day](./censys_massive_count_by_day.jpg)
-能看到censys每天有将近180个ip在进行大范围扫描
 
-再看看shodan
+- shodan进行扫描的ip数量是多少？
 ![shodan scanner by day](./shodan_count_by_day.jpg)
-能看到每天有35个ip在进行扫描。
 
-shodan大范围扫描的ip数量呢?
+- shodan进行大范围扫描的ip数量呢？
 ![shodan massive scanner by day](./shodan_massive_count_by_day.jpg)
-平均每天有25个ip在进行大范围扫描
 
-再来看看binaryedge的扫描ip数量：
+- binaryedge进行扫描的ip数量是多少？
 ![binaryedge scanner by day](./binaryedge_count_by_day.jpg)
-比较不稳定，大概在50个左右
 
-binaryedge大范围扫描的ip数量?
+- binaryedge大范围扫描的ip数量？
 ![binaryedge massive scanner by day](./binaryedge_massive_count_by_day.jpg)
-大概有10个ip在进行大范围扫描
 
-rapid7是怎么进行扫描的？
+- rapid7是怎么进行扫描的？
 ![rapid7 scanner by day](./rapid7_count_by_day.jpg)
-能看到中间会休息一周然后突然多出大量ip进行扫描任务。
 
-这些ip都在关心哪些端口？来自哪个国家？扫描范围有多广？访问了哪些服务？
+- 这些ip都在关心哪些端口？来自哪个国家？扫描范围有多广？访问了哪些服务？
 ![ip summary](./summary.jpg)
 可以在[faweb](https://faweb.fofa.so/analysis/)上查看
 
 
-再以端口为线索，看看大范围扫描器都在关心哪些端口？ 
+- 再以端口为线索，大范围扫描器都在关心哪些端口？ 
 ![masser scanner port](./port_breadth_b5_ports.jpg)
-可以看到，大部分都集中在10000端口以下。 后面的27017、49152端口访问数量也比较大，我们来找找原因。
+能看到大部分都集中在10000端口以下。 后面的27017、49152端口访问数量也比较大，我们来找找原因。
 
 在[faweb中搜索port:27017](https://faweb.fofa.so/result/?word=port%3A27017),能看到有2000多条结果，
 27017是mongodb的常用端口，因此各家的互联网扫描引擎也比较关注。
 再看看关心27017端口的ip还会关心哪些端口:
 ![related 27017](./port_27017_result.jpg)
+
 基本上是互联网扫描器会关心的常见服务端口。
 
 来看下其中的一个ip:
@@ -72,17 +64,14 @@ rapid7是怎么进行扫描的？
 看rdns信息，应该是censys的ip地址，再看看它关心的端口列表，找几个端口,比如50995, 20201, 40000, 17777, 47001, 49152,来看看各个互联网扫描平台上有多少条独立ip的收录:
 
 | 平台               |     50995 |     20201 | 40000     |   17777 |     47001 | 49152      |
+| shodan             |         2 |        43 | 39        |       4 |         4 | 1,488,551  |
+| censys             | 1,083,024 | 2,722,622 | 1,748,078 | 311,021 | 2,827,492 | 2,054,990  |
 | fofa.so            |         1 |        82 | 1,280,784 |      26 |        39 | 5,497,110  |
 | zoomeye.org        |         0 |         0 | 2,018,912 |       0 |         0 | 5,762,264  |
 | quake.360.cn       |         7 |        18 | 47        |       2 |       483 | 3,546,927  |
-| shodan             |         2 |        43 | 39        |       4 |         4 | 1,488,551  |
-| censys             | 1,083,024 | 2,722,622 | 1,748,078 | 311,021 | 2,827,492 | 2,054,990  |
 
-
-下面来介绍如何对收集到的原始日志进行简单的分析，并创建规则来回答上面这些问题。
+下面来介绍如何对收集到的原始日志进行简单的分析，并创建规则来提供更高层次的数据以回答上面这些问题。
     
-[示例网站](https://faweb.fofa.so/)
-
 ## 规则介绍
 因为FaPro收集的日志是分散的，每个ip的访问请求会分散为很多条日志，目前主要的日志种类有tcp_syn, icmp_ping, udp_packet,以及协议交互的日志。
 
@@ -268,4 +257,4 @@ pprint.pprint(http_info)
 
 # 结语
 
-至此，已经完成了初步的规则分析及归类。更深入的行为分析，扫描意图识别还需要更多工作要做，敬请期待第三篇。
+至此，已经完成了初步的规则分析以及数据探索。更深入的行为分析，扫描意图识别还需要更多工作要做，敬请期待第三篇。
