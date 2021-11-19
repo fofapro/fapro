@@ -58,6 +58,7 @@ FaPro是一个服务端协议模拟工具,可以轻松启停多个网络服务�
   - [x] BACnet
   - [x] Oracle TNS
   - [x] AMQP
+  - [x] NFS
 - 使用TcpForward进行端口转发
 - 支持tcp syn请求记录
 - 支持ping请求记录
@@ -295,6 +296,7 @@ fapro run -v -l :8080
 
 ## 学习更多
 - [如何打造一个网络扫描分析平台 - Part I](./howto/howto_CN_1.md)
+- [如何打造一个网络扫描分析平台 - Part II](./howto/howto_CN_2.md)
 - [Discord](https://discord.gg/Eaz9dzV4AP)
 
 ## 常见问题

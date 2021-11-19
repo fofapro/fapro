@@ -58,6 +58,7 @@ The goal is to support as many protocols as possible, and support as many deep i
   - [x] BACnet
   - [x] Oracle TNS
   - [x] AMQP
+  - [x] NFS
 - Use TcpForward to forward network traffic
 - Support tcp syn logging
 - Support icmp ping logging 
@@ -294,6 +295,7 @@ Use the **ipclone.py** script in [Scripts](scripts/README.md), You can clone the
 
 ## Learn more
 - [How to build a network scanning analysis platform - Part I](./howto/howto_1.md)
+- [How to build a network scanning analysis platform - Part II](./howto/howto_2.md)
 - [Discord](https://discord.gg/Eaz9dzV4AP)
 
 ## FAQ 

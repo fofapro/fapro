@@ -14,30 +14,29 @@
 
 - 每天有多少ip在进行扫描？
 ![ip count by day](./ip_count_by_day.jpg)
+可以看到从2021-10-15日之后，平均每天有2万个ip在进行扫描
 
-- 那么进行大范围ip扫描的数量趋势呢？
+- 进行大范围扫描的ip数量趋势呢？
 ![ip count by breadth gt 1](./breadth_gt_1_ips_by_day.jpg)
+有7000个左右的ip每天在进行大范围的扫描
 
-- 再来看看censys每天扫描的ip数量是多少？
-![censys ip by day](./censys_count_by_day.jpg)
+- 看下几个互联网扫描器进行扫描的ip数量分布情况：
+![scanners](./scanners.png)
+能看到censys每天有将近280个ip在进行扫描,将近180个ip在进行大范围扫描；shodan每天有35个ip在进行扫描,平均每天有25个ip在进行大范围扫描 。binaryedge比较不稳定，大概在50个ip左右,大概有10个ip在进行大范围扫描。
 
-- censys每天进行大范围扫描的ip数量是多少？
-![censys massive scanner by day](./censys_massive_count_by_day.jpg)
-
-- shodan进行扫描的ip数量是多少？
-![shodan scanner by day](./shodan_count_by_day.jpg)
-
-- shodan进行大范围扫描的ip数量呢？
-![shodan massive scanner by day](./shodan_massive_count_by_day.jpg)
-
-- binaryedge进行扫描的ip数量是多少？
-![binaryedge scanner by day](./binaryedge_count_by_day.jpg)
-
-- binaryedge大范围扫描的ip数量？
-![binaryedge massive scanner by day](./binaryedge_massive_count_by_day.jpg)
-
-- rapid7是怎么进行扫描的？
+- 再来看看rapid7是怎么进行扫描的？
 ![rapid7 scanner by day](./rapid7_count_by_day.jpg)
+扫描策略特殊一点，能看到中间会休息一周然后突然多出大量ip进行扫描任务。
+
+- 一天时间内的扫描广度是怎么分布的？
+![scan breadth](./count_by_breadth.jpg)
+能看到绝大部分ip一天内扫描的覆盖范围(覆盖的主机数量)比较少。
+扫描广度在60%、70%的比100%的还要少，也就是说中等偏上扫描范围的ip数量比较少，互联网扫描器大多会全部扫描，或者限制较少的目标范围。
+或者是扫描器的能力或资源有限，要么选择轻量级更快的扫描全网，要么是速度比较慢的进行更多的端口或协议识别操作。
+
+- 一天内ip扫描的端口数量都有多少？
+![port total by ip count](./port_total_by_ip_count.jpg)
+大部分ip一天内扫描的端口数量还是比较少的，扫描80个端口以上的ip数量很少
 
 - 这些ip都在关心哪些端口？来自哪个国家？扫描范围有多广？访问了哪些服务？
 ![ip summary](./summary.jpg)
@@ -59,25 +58,44 @@
 ![27017 detail ip](./port_27017_ip.jpg)
 它是recyber的一个扫描器。再看其它几个ip也是扫描器的行为。
 
-再看看[port:49152](https://faweb.fofa.so/result/?word=port%3A49152), 看看其中一个ip:
+再看看[port:49152](https://faweb.fofa.so/result/?word=port%3A49152), 其中一个ip:
 ![167.248.133.18](./167.248.133.18.png)
 看rdns信息，应该是censys的ip地址，再看看它关心的端口列表，找几个端口,比如50995, 20201, 40000, 17777, 47001, 49152,来看看各个互联网扫描平台上有多少条独立ip的收录:
 
-| 平台               |     50995 |     20201 | 40000     |   17777 |     47001 | 49152      |
-| shodan             |         2 |        43 | 39        |       4 |         4 | 1,488,551  |
-| censys             | 1,083,024 | 2,722,622 | 1,748,078 | 311,021 | 2,827,492 | 2,054,990  |
-| fofa.so            |         1 |        82 | 1,280,784 |      26 |        39 | 5,497,110  |
-| zoomeye.org        |         0 |         0 | 2,018,912 |       0 |         0 | 5,762,264  |
-| quake.360.cn       |         7 |        18 | 47        |       2 |       483 | 3,546,927  |
+| 端口/平台      |     50995 |     20201 | 40000     |   17777 |     47001 | 49152     |
+| ----         |      ---- |      ---- | ----      |    ---- |      ---- | ----      |
+| shodan       |         2 |        43 | 39        |       4 |         4 | 1,488,551 |
+| censys       | 1,083,024 | 2,722,622 | 1,748,078 | 311,021 | 2,827,492 | 2,054,990 |
+| fofa.so      |         1 |        82 | 1,280,784 |      26 |        39 | 5,497,110 |
+| zoomeye.org  |         0 |         0 | 2,018,912 |       0 |         0 | 5,762,264 |
+| quake.360.cn |         7 |        18 | 47        |       2 |       483 | 3,546,927 |
 
 下面来介绍如何对收集到的原始日志进行简单的分析，并创建规则来提供更高层次的数据以回答上面这些问题。
     
 ## 规则介绍
-因为FaPro收集的日志是分散的，每个ip的访问请求会分散为很多条日志，目前主要的日志种类有tcp_syn, icmp_ping, udp_packet,以及协议交互的日志。
+elasticsearch一个月的日志大约有100G，直接在elasticsearch中分析原始数据会对elastic造成很大压力，速度比较慢，而且做复杂的聚合查询也会超出elasticsearch的各种(bucket, request size等)限制。
 
-针对单个ip的行为分析，就需要把这些分散的日志按照一定的规则进行聚合，如何定义规则？我们想看到哪些维度的数据？就需要自己去分析，这里介绍几种简单的规则。
+FaPro收集的日志也是分散的，每个ip的访问请求会分散为很多条日志，从原始数据做聚合查询再进行分析效率非常低，因此要建立一个中间的分析库，把原始日志按时间段进行汇总，针对单个ip的行为，按照一定的规则进行聚合。
 
-首先根据时间段对ip的日志数据进行汇总，比如tcp_syn访问次数，访问了哪些端口; icmp_ping访问次数，udp_packet访问的端口，及每个端口对应的访问次数等，为了方便，这里统一按天进行归类。
+我们选择按天聚合每个ip的信息，保存到中间库，再对中间库进行分析。那么这个中间库要保存哪些数据？聚合那些信息？如何处理这些信息？
+
+我们把它统称为规则，如何定义规则？就需要自己去分析定义，想看到哪些维度的数据？这里介绍几种简单的规则属性。
+
+目前主要的日志种类有tcp_syn, icmp_ping, udp_packet,以及协议交互的日志, 根据从这些类型的日志中可获取的信息进行归类汇总。
+
+根据时间段对ip的日志数据进行汇总的字段：
+- port: 每天访问的所有端口
+- icmp_ping: 每天访问的所有icmp ping消息的总数
+- port_count: 每天访问的所有端口的总数
+- tcp_port: 每天访问的所有tcp端口
+- udp_port: 每天访问的所有udp端口
+- **扫描广度**: 把一个ip每天扫描的目标范围进行1-10打分，比如有30个FaPro扫描日志收集器，按(ip当天访问的host数量 / 30) * 10 统一为1-10之间的数字。
+- http_url: http访问的url列表
+- http_user_agent: http访问的useragent列表
+- mysql_login_attempts: mysql进行尝试登陆的次数
+还有更多字段可以去定义，可以根据协议交互日志定义一些tag，或者频率、范围等定义出一系列的指标，方便后续的分析任务。
+
+下面介绍如何使用elasticsearch查询实现这些规则。
 
 ## 编写规则
 如果对elastic查询不熟悉，可以先借助kibana查询相应的图表，再使用inpect查看相应的查询语句，来获取elastic查询。
@@ -238,6 +256,14 @@ pprint.pprint(http_info)
                                  'doc_count_error_upper_bound': 0,
                                  'sum_other_doc_count': 0}}}
 ```
+然后是把一天内的所有ip依次应用这些规则进行查询，再把最终结果入库。
+
+最开始的实现采用了elasticsearch对FaPro原始日志的分析结果进行入库，[项目地址](https://github.com/fasensor/faproana)。但是聚合查询速度很慢，对历史数据处理也不是很方便。
+
+之后切换到[xtdb](https://xtdb.com/)，一个双时态数据库，可以更好的处理时间历史，但是Datalog查询语法学习曲线较高，性能也不是很强，为了扩容方便，采用了kafka+postgres作为后端保存事务和文档也增加了运维成本，对各种语言的api支持也比较弱。
+
+最后切换到[clickhouse](https://clickhouse.com/), 专门为OLAP设计的数据库，可以实现高效的聚合查询，比较通用的sql语法，服务配置也比较方便，运维成本较低，查询性能很强，对于汇聚了一天的数据直接批量插入，效率非常高，各种语言的api支持也不错。
+
 
 ## 展示效果
 
@@ -257,4 +283,4 @@ pprint.pprint(http_info)
 
 # 结语
 
-至此，已经完成了初步的规则分析以及数据探索。更深入的行为分析，扫描意图识别还需要更多工作要做，敬请期待第三篇。
+至此，已经完成了初步的规则创建，中间数据的入库，以及一些数据探索。更深入的行为分析，扫描意图识别等还需要更多工作要做，敬请期待第三篇。
