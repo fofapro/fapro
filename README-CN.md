@@ -88,6 +88,11 @@ FaPro是一个服务端协议模拟工具,可以轻松启停多个网络服务�
 
 ![Mysql demo](docs/mysql.gif)
 
+### FTP 
+支持用户登陆并进行交互。
+
+![Ftp demo](docs/ftp.gif)
+
 ### Oracle and BACnet
 当前只支持nmap指纹欺骗
 

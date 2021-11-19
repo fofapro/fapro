@@ -89,6 +89,11 @@ Support sql statement query interaction
 
 ![Mysql demo](docs/mysql.gif)
 
+### FTP 
+Support user login and interaction.
+
+![Ftp demo](docs/ftp.gif)
+
 ### Oracle and BACnet
 Currently only support nmap fingerprint spoofing
 
