@@ -49,11 +49,15 @@ The table above shows that most of the data is concentrated under port 10000. Po
 Search for [port:27017](https://faweb.fofa.so/result/?word=port%3A27017), you can see more than 2000 results, 27017 is a common port of MongoDB, so various Internet scanners are also paying attention.
 
 Let's take a look at the IP that cares about port 27017, which ports will also be concerned:
+
 ![related 27017](./port_27017_result.jpg)
+
 It is a common service port that Internet scanners will focus on it.
 
 Lets take a look one of them's details:
+
 ![27017 detail ip](./port_27017_ip.jpg)
+
 It is a Recyber scanner. Let's look at the behavior of several other IPs that are also scanners.
 
 Let us focus [port:49152](https://faweb.fofa.so/result/?word=port%3A49152) again, choose an IP:
@@ -267,8 +271,10 @@ Finally, we switch to  [clickhouse](https://clickhouse.com/), a database special
 
 ## Visualization of results
 
-After collecting all the IP information and categorizing it into the new analysis database, you can perform higher-level analysis of IP information, such as using Faweb to view [45.146.164.110](https://faweb.fofa.so/ip_detail/? ip=45.146.164.110):
+After collecting all the IP information and categorizing it into the new analysis database, you can perform higher-level analysis of IP information, such as using Faweb to view [45.146.164.110](https://faweb.fofa.so/ip_detail/?ip=45.146.164.110):
+
 ![45.146.164.110](45.146.164.110.png)
+
 The data shows that 45.146.164.110 accessed multiple protocols without port scan, so it is speculated that it may be a protocol analysis tool. From the ports and protocol line charts, the number of protocol identification accesses increases as the detected ports increases. From the http_url list, it tries to identify several web applications.
 
 Let’s look at another IP [220.174.25.172](https://faweb.fofa.so/ip_detail/?ip=220.174.25.172):
