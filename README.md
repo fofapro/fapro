@@ -59,6 +59,8 @@ The goal is to support as many protocols as possible, and support as many deep i
   - [x] Oracle TNS
   - [x] AMQP
   - [x] NFS
+  - [x] COAP
+  - [x] WEMO
 - Use TcpForward to forward network traffic
 - Support tcp syn logging
 - Support icmp ping logging 
@@ -119,6 +121,11 @@ Support login and interaction
 
 ![AMQP demo](docs/amqp.gif)
 
+### COAP 
+Currently only support nmap fingerprint spoofing
+
+![COAP demo](docs/coap.gif)
+
 ### HTTP
 Support website clone, You need to install the chrome browser and [chrome driver](https://chromedriver.chromium.org/downloads) to work.
 
@@ -155,7 +162,7 @@ This section contains the sample configuration used by FaPro.
 
 ```json
 {
-     "version": "0.44",
+     "version": "0.46",
      "network": "127.0.0.1/32",
      "network_build": "localhost",
      "storage": null,
@@ -222,7 +229,7 @@ and 172.16.0.5 run rpc, rdp service,
 protocol access logs are saved to elasticsearch, exclude the access log of 127.0.0.1 and 8.8.8.8.
 ```json
 {
-    "version": "0.44",
+    "version": "0.46",
     "network": "172.16.0.0/24",
     "network_build": "userdef",
     "storage": "es://http://127.0.0.1:9200",
