@@ -61,10 +61,12 @@ The goal is to support as many protocols as possible, and support as many deep i
   - [x] NFS
   - [x] COAP
   - [x] WEMO
+  - [x] DHT
 - Use TcpForward to forward network traffic
 - Support tcp syn logging
 - Support icmp ping logging 
 - Support udp packet logging
+- Support ja3 SSL Fingerprint
 
 ## Protocol simulation demos
 ### Rdp
@@ -144,6 +146,11 @@ Or use local address instead of the virtual network:
 fapro genConfig > fapro.json
 ```
 
+Only generate ssh protocol configuration:
+```shell 
+./fapro genConfig -p ssh
+```
+
 ### Run the protocol simulator
 Run FaPro in verbose mode and start the web service on port 8080:
 ```shell
@@ -162,7 +169,7 @@ This section contains the sample configuration used by FaPro.
 
 ```json
 {
-     "version": "0.46",
+     "version": "0.47",
      "network": "127.0.0.1/32",
      "network_build": "localhost",
      "storage": null,
@@ -229,7 +236,7 @@ and 172.16.0.5 run rpc, rdp service,
 protocol access logs are saved to elasticsearch, exclude the access log of 127.0.0.1 and 8.8.8.8.
 ```json
 {
-    "version": "0.46",
+    "version": "0.47",
     "network": "172.16.0.0/24",
     "network_build": "userdef",
     "storage": "es://http://127.0.0.1:9200",

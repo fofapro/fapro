@@ -61,10 +61,12 @@ FaPro是一个服务端协议模拟工具,可以轻松启停多个网络服务�
   - [x] NFS
   - [x] COAP
   - [x] WEMO
+  - [x] DHT
 - 使用TcpForward进行端口转发
 - 支持tcp syn请求记录
 - 支持ping请求记录
 - 支持udp数据包记录
+- 支持SSL ja3指纹
 
 ## 协议模拟演示
 ### Rdp
@@ -144,6 +146,11 @@ fapro genConfig -n 172.16.0.0/16 > fapro.json
 fapro genConfig > fapro.json
 ```
 
+只创建ssh协议的配置:
+```shell 
+./fapro genConfig -p ssh
+```
+
 ### 运行协议模拟器
 使用Verbose模式运行FaPro, 并在8080端口启动web服务:
 ```shell
@@ -164,7 +171,7 @@ fapro run -v -l :8080
 
 ```json
 {
-     "version": "0.46",
+     "version": "0.47",
      "network": "127.0.0.1/32",
      "network_build": "localhost",
      "storage": null,
@@ -229,7 +236,7 @@ fapro run -v -l :8080
 协议访问日志保存到elasticsearch，排除远程ip为127.0.0.1和8.8.8.8的日志。
 ```json
 {
-    "version": "0.46",
+    "version": "0.47",
     "network": "172.16.0.0/24",
     "network_build": "userdef",
     "storage": "es://http://127.0.0.1:9200",
