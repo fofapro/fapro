@@ -10,6 +10,8 @@ import base64
 import json
 import re
 import argparse
+from urllib.parse import urlparse
+from os import path
 
 fofa_email = os.environ.get('FOFA_EMAIL')
 fofa_key = os.environ.get('FOFA_KEY')
@@ -78,11 +80,19 @@ def get_redis_version(data):
         return r.group(1)
     return "6.2.3"
 
-def get_rtsp_server(data):
-    r = re.search("Server: (.*?)[\r\n]", data)
-    if r:
-        return r.group(1)
-    return ""
+def get_rtsp_paras(data):
+    hdrs = parse_http_headers(data, lower=False)
+    server = ''
+    headers = []
+    for [k, v] in hdrs:
+        if k.lower() == 'server':
+            server = v
+        elif k.lower() == 'cseq':
+            continue
+        else:
+            headers.append(f'{k}: {v}')
+    return {"server": server,
+            "headers": headers}
 
 def get_port_mapping(data):
     result = []
@@ -100,11 +110,43 @@ def get_eip_info(banner):
                 "product_name": product.group(1)}
     return None
 
+def parse_http_headers(banner, lower = True):
+    lines = banner.split('\r\n')
+    hdr = []
+    for l in lines[1:]:
+        kv = l.split(':', 1)
+        if len(kv) > 1:
+            k = kv[0].strip()
+            v = kv[1].strip()
+            if lower:
+                k = k.lower()
+                v = v.lower()
+            hdr.append([k, v])
+    return hdr
+
+def get_upnp_info(banner):
+    hdrs = parse_http_headers(banner)
+    hdrs = {l[0]: l[1] for l in hdrs}
+    max_age = 1800
+    if hdrs['cache-control']:
+        ma = re.search('max-age=(\d+)', hdrs['cache-control'])
+        if ma:
+            max_age = int(ma.group(1))
+    return {'dev_location': hdrs['location'],
+            'dev_type': hdrs['st'],
+            'dev_usn': hdrs['usn'],
+            'max_age': max_age,
+            'server_version': hdrs['server'],}
+
 def get_sip_body(banner):
     body = re.search("\r\n\r\n(.*)$", banner, re.MULTILINE | re.DOTALL)
     if body:
         return body.group(1)
     return ""
+
+def get_socks5_auth(banner):
+    method = re.search("USERNAME/PASSWORD", banner)
+    return method != None
 
 def get_postgres_auth(banner):
     method = re.search("Authentication type:\s+(\w+)", banner)
@@ -118,15 +160,27 @@ def get_postgres_auth(banner):
             return "none"
     return "none"
 
-def gen_handler(ip, port, service, banner, deep_dump=True):
+def host_replace(url, new_ip):
+    u = re.sub(r'(https?://)(.+?)(:\d+)?/(.*)',
+               r'\1%s\3/\4',
+               url)
+    return u % new_ip
+
+def fapro_dump(url, app_name, p='http', deep = True):
+    deep_arg = ''
+    if deep:
+        deep_arg = '-d'
+    run = f'{fapro_bin} dumpWeb -p {p} -u {url} -a {app_name} {deep_arg}'
+    print("run: ", run)
+    r = os.system(run)
+    print("fapro dump return:", r)
+
+def gen_handlers(ip, port, service, banner, deep_dump=True):
     print(f'gen handler for {ip} - {port} - {service}')
     handler = {"port": port}
-    deep_arg = ''
-    if deep_dump:
-        deep_arg = '-d'
     if service == "http":
         app_name = f'clone_{ip}_{port}'
-        os.system(f'{fapro_bin} dumpWeb -u http://{ip}:{port} -a {app_name} {deep_arg}')
+        fapro_dump(f'http://{ip}:{port}', app_name, deep = deep_dump)
         handler['handler'] = 'http'
         handler['params'] = {"ssl": False,
                              "server_version": get_server(banner),
@@ -134,7 +188,7 @@ def gen_handler(ip, port, service, banner, deep_dump=True):
                              }
     elif service == "https":
         app_name = f'clone_{ip}_{port}_https'
-        os.system(f'{fapro_bin} dumpWeb -u https://{ip}:{port} -a {app_name} {deep_arg}')
+        fapro_dump('https://{ip}:{port}', app_name, deep = deep_dump)
         handler['handler'] = 'http'
         handler['params'] = {"ssl": True,
                              "server_version": get_server(banner),
@@ -154,7 +208,7 @@ def gen_handler(ip, port, service, banner, deep_dump=True):
         handler['params'] = {"server_version": get_redis_version(banner)}
     elif service == "rtsp":
         handler['handler'] = 'rtsp'
-        handler['params'] = {"server": get_rtsp_server(banner)}
+        handler['params'] = get_rtsp_paras(banner)
     elif service == "portmap":
         handler['handler'] = 'portmap'
         handler['params'] = {"mapping_table": get_port_mapping(banner)}
@@ -184,17 +238,46 @@ def gen_handler(ip, port, service, banner, deep_dump=True):
     elif service in ["smtp", "pop3", "imap"]:
         handler['handler'] = service
         print(f'please config {service} params')
+    elif service == "oracle":
+        handler['handler'] = 'tns'
+    elif service == 'ethereumrpc':
+        handler['handler'] = 'ethereum'
     elif service in ["smtps", "pop3s", "imaps"]:
         handler['handler'] = service[:-1]
         handler['params'] = {"ssl": True}
         print(f'please config {service} params')
-    elif service in ["dns", "ntp", "s7", "snmp", "memcache", "vnc", "modbus",  "telnet", "rdp", "smb", "dcerpc"]:
+    elif service == "upnp":
+        handler['handler'] = 'ssdp'
+        ssdp_info = get_upnp_info(banner)
+        handler['params'] = ssdp_info
+        wemo_url = host_replace(ssdp_info['dev_location'], ip)
+        u = urlparse(wemo_url)
+        wemo_handler = {'port': u.port,
+                        'handler': 'wemo'}
+        app_name = f'wemo_{ip}_{u.port}'
+        fapro_dump(wemo_url, app_name, p='wemo')
+        if path.exists(app_name):
+            wemo_handler["params"] = {
+                "server_version": "OS 1.0 UPnP/1.0 Realtek/V1.0",
+                'fs_path': app_name}
+            return [handler, wemo_handler]
+    elif service == "coap":
+        handler['handler'] = 'coap'
+        app_name = f'coap_{ip}_{port}'
+        app_conf = app_name + '.json'
+        url = f'{ip}:{port}'
+        fapro_dump(url, app_name, p='coap')
+        if path.exists(app_conf):
+            handler['params'] = {"config_file":app_conf}
+        else:
+            return
+    elif service in ["dns", "ntp", "s7", "snmp", "memcache", "vnc", "modbus",  "telnet", "rdp", "smb", "dcerpc", "dht", "bacnet", "nfs", "socks5",  "amqp"]:
         handler['handler'] = service
     else:
         print(f'unsupport service {service}')
         return
 
-    return handler
+    return [handler]
 
 def clone_device(ip, hostname, store, deep_dump):
     data = fofa_query(ip)
@@ -202,10 +285,10 @@ def clone_device(ip, hostname, store, deep_dump):
     proced = []
     for d in data:
         if d[1] and (not d[0] in proced):
-            h = gen_handler(ip, d[0], d[1], d[2], deep_dump)
-            if h:
-                handlers.append(h)
-                proced.append(d[0])
+            hs = gen_handlers(ip, d[0], d[1], d[2], deep_dump)
+            if hs:
+                handlers += hs
+                proced += [h['port'] for h in hs]
     result = {"version": "0.40",
               "network": "127.0.0.1/32",
               "network_build": "localhost",
