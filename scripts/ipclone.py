@@ -271,7 +271,7 @@ def gen_handlers(ip, port, service, banner, deep_dump=True):
             handler['params'] = {"config_file":app_conf}
         else:
             return
-    elif service in ["dns", "ntp", "s7", "snmp", "memcache", "vnc", "modbus",  "telnet", "rdp", "smb", "dcerpc", "dht", "bacnet", "nfs", "socks5",  "amqp"]:
+    elif service in ["dns", "ntp", "s7", "snmp", "memcache", "vnc", "modbus",  "telnet", "rdp", "smb", "dcerpc", "dht", "bacnet", "nfs", "socks5",  "amqp", "onvif"]:
         handler['handler'] = service
     else:
         print(f'unsupport service {service}')
