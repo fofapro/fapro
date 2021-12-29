@@ -184,7 +184,7 @@ def gen_handlers(ip, port, service, banner, deep_dump=True):
         handler['handler'] = 'http'
         handler['params'] = {"ssl": False,
                              "server_version": get_server(banner),
-                             "fa_path": "webapps/" + app_name,
+                             "fs_path": "webapps/" + app_name,
                              }
     elif service == "https":
         app_name = f'clone_{ip}_{port}_https'
@@ -192,7 +192,7 @@ def gen_handlers(ip, port, service, banner, deep_dump=True):
         handler['handler'] = 'http'
         handler['params'] = {"ssl": True,
                              "server_version": get_server(banner),
-                             "fa_path": "webapps/" + app_name,
+                             "fs_path": "webapps/" + app_name,
                              }
     elif service == "ftp":
         handler['handler'] = 'ftp'
