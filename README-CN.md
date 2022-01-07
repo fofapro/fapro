@@ -67,11 +67,13 @@ FaPro是一个服务端协议模拟工具,可以轻松启停多个网络服务�
   - [x] EOS.IO
   - [x] ONVIF
   - [x] NetBIOS
+  - [x] WebLogic
 - 使用TcpForward进行端口转发
 - 支持tcp syn请求记录
 - 支持ping请求记录
 - 支持udp数据包记录
 - 支持SSL ja3指纹
+- 支持ip限速控制
 
 ## 协议模拟演示
 ### Rdp
@@ -176,7 +178,7 @@ fapro run -v -l :8080
 
 ```json
 {
-     "version": "0.51",
+     "version": "0.53",
      "network": "127.0.0.1/32",
      "network_build": "localhost",
      "storage": null,
@@ -187,6 +189,11 @@ fapro run -v -l :8080
      "syn_dev": "any",
      "udp_dev": "any",
      "icmp_dev": "any",
+     "limiter": {
+         "period": 10,
+         "count": 3,
+         "block_period": 20
+     },
      "exclusions": [],
      "hosts": [
          {
@@ -225,6 +232,10 @@ fapro run -v -l :8080
  - syn_dev: 指定捕获tcp syn包使用的网卡，如果为空则不记录tcp syn包。在windows上，网卡名称类似于 "\Device\NPF_{xxxx-xxxx}"。
  - udp_dev: 与syn_dev相同，记录udp数据包。
  - icmp_dev: 与syn_dev相同，记录icmp ping数据包。
+ - limiter: ip限速配置,在指定时间段内(period)访问超过设定的次数(count)则封禁指定的时间(block_period)。
+   - period: ip限制访问的时间段(单位为分钟)
+   - count: ip在时间段内访问的最大次数
+   - block_period: 超过ip访问限制后的封禁时间(单位为分钟)
  - exclusions: 从日志记录中排除指定的remote ip。
  - hosts: 主机列表，每一项为一个主机配置
  - handlers: 服务列表，每一项为一个服务配置
@@ -241,7 +252,7 @@ fapro run -v -l :8080
 协议访问日志保存到elasticsearch，排除远程ip为127.0.0.1和8.8.8.8的日志。
 ```json
 {
-    "version": "0.51",
+    "version": "0.53",
     "network": "172.16.0.0/24",
     "network_build": "userdef",
     "storage": "es://http://127.0.0.1:9200",

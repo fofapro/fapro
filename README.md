@@ -67,11 +67,13 @@ The goal is to support as many protocols as possible, and support as many deep i
   - [x] EOS.IO
   - [x] ONVIF
   - [x] NetBIOS
+  - [x] WebLogic
 - Use TcpForward to forward network traffic
 - Support tcp syn logging
 - Support icmp ping logging 
 - Support udp packet logging
 - Support ja3 SSL Fingerprint
+- Support IP Limiter 
 
 ## Protocol simulation demos
 ### Rdp
@@ -174,7 +176,7 @@ This section contains the sample configuration used by FaPro.
 
 ```json
 {
-     "version": "0.51",
+     "version": "0.53",
      "network": "127.0.0.1/32",
      "network_build": "localhost",
      "storage": null,
@@ -185,6 +187,11 @@ This section contains the sample configuration used by FaPro.
      "syn_dev": "any",
      "udp_dev": "any",
      "icmp_dev": "any",
+     "limiter": {
+         "period": 10,
+         "count": 3,
+         "block_period": 20
+     },
      "exclusions": [],
      "hosts": [
          {
@@ -224,6 +231,10 @@ This section contains the sample configuration used by FaPro.
  - syn_dev: Specify the network interface used to capture tcp syn packets. If it is empty, the tcp syn packet will not be recorded. On windows, the device name is like "\Device\NPF_{xxxx-xxxx}".
  - udp_dev: Same as syn_dev, but for udp packet.
  - icmp_dev: Same as syn_dev, but for icmp ping packet.
+ - limiter: IP limiter configuration, in the specified time period (period) access more than times (count), then block specified time (block_period).
+   - period: Time period for ip limiter (in minutes)
+   - count: The maximum number of times the IP can be accessed within the specified time period
+   - block_period: The ban time after exceeding the IP access limit (in minutes)
  - exclusions: Exclude remote ips from logs.
  - hosts: Each item is a host configuration.
  - handlers: Service configuration, the service configured on the host, each item is a service configuration.
@@ -241,7 +252,7 @@ and 172.16.0.5 run rpc, rdp service,
 protocol access logs are saved to elasticsearch, exclude the access log of 127.0.0.1 and 8.8.8.8.
 ```json
 {
-    "version": "0.51",
+    "version": "0.53",
     "network": "172.16.0.0/24",
     "network_build": "userdef",
     "storage": "es://http://127.0.0.1:9200",
@@ -250,6 +261,11 @@ protocol access logs are saved to elasticsearch, exclude the access log of 127.0
     "syn_dev": "any",
     "udp_dev": "any",
     "icmp_dev": "any",
+    "limiter": {
+         "period": 10,
+         "count": 3,
+         "block_period": 20
+     },
     "exclusions": ["127.0.0.1", "8.8.8.8"],
     "geo_db": "",
     "hosts": [
