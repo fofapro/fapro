@@ -76,7 +76,7 @@ sudo ./fapro run -f camera.pak -v
 ```
 会创建一个8.0.0.0/8的虚拟网络，并随机生成设备ip。
 
-![rules demo](../docs/rule.gif)
+![camera rules demo](../docs/camera.gif)
 
 使用web界面可以查看ip端口对应的设备规则。
 

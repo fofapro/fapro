@@ -339,6 +339,7 @@ Use the **ipclone.py** script in [Scripts](scripts/README.md), You can clone the
 ## Learn more
 - [How to build a network scanning analysis platform - Part I](./howto/howto_1.md)
 - [How to build a network scanning analysis platform - Part II](./howto/howto_2.md)
+- [How to use FaPro to simulate multiple devices in network](./howto/rule_en.md)
 - [Discord](https://discord.gg/Eaz9dzV4AP)
 
 ## FAQ 

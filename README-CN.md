@@ -335,6 +335,7 @@ fapro run -v -l :8080
 ## 学习更多
 - [如何打造一个网络扫描分析平台 - Part I](./howto/howto_CN_1.md)
 - [如何打造一个网络扫描分析平台 - Part II](./howto/howto_CN_2.md)
+- [如何使用FaPro批量模拟设备](./howto/rule.md)
 - [Discord](https://discord.gg/Eaz9dzV4AP)
 
 ## 常见问题
