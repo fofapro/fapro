@@ -181,7 +181,7 @@ fapro run -v -l :8080
 
 ```json
 {
-     "version": "0.55",
+     "version": "0.56",
      "network": "127.0.0.1/32",
      "network_build": "localhost",
      "storage": null,
@@ -255,7 +255,7 @@ fapro run -v -l :8080
 协议访问日志保存到elasticsearch，排除远程ip为127.0.0.1和8.8.8.8的日志。
 ```json
 {
-    "version": "0.55",
+    "version": "0.56",
     "network": "172.16.0.0/24",
     "network_build": "userdef",
     "storage": "es://http://127.0.0.1:9200",
