@@ -75,6 +75,7 @@ The goal is to support as many protocols as possible, and support as many deep i
   - [x] Fox
   - [x] DNP3
   - [x] OMRON
+  - [x] GE-SRTP
 - Use TcpForward to forward network traffic
 - Support tcp syn logging
 - Support icmp ping logging 
@@ -183,7 +184,7 @@ This section contains the sample configuration used by FaPro.
 
 ```json
 {
-     "version": "0.60",
+     "version": "0.61",
      "network": "127.0.0.1/32",
      "network_build": "localhost",
      "storage": null,
@@ -259,7 +260,7 @@ and 172.16.0.5 run rpc, rdp service,
 protocol access logs are saved to elasticsearch, exclude the access log of 127.0.0.1 and 8.8.8.8.
 ```json
 {
-    "version": "0.60",
+    "version": "0.61",
     "network": "172.16.0.0/24",
     "network_build": "userdef",
     "storage": "es://http://127.0.0.1:9200",
