@@ -76,6 +76,7 @@ FaPro是一个服务端协议模拟工具,可以轻松启停多个网络服务�
   - [x] DNP3
   - [x] OMRON
   - [x] GE-SRTP
+  - [x] MongoDB
 - 使用TcpForward进行端口转发
 - 支持tcp syn请求记录
 - 支持ping请求记录
@@ -186,7 +187,7 @@ fapro run -v -l :8080
 
 ```json
 {
-     "version": "0.61",
+     "version": "0.62",
      "network": "127.0.0.1/32",
      "network_build": "localhost",
      "storage": null,
@@ -260,7 +261,7 @@ fapro run -v -l :8080
 协议访问日志保存到elasticsearch，排除远程ip为127.0.0.1和8.8.8.8的日志。
 ```json
 {
-    "version": "0.61",
+    "version": "0.62",
     "network": "172.16.0.0/24",
     "network_build": "userdef",
     "storage": "es://http://127.0.0.1:9200",
