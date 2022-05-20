@@ -32,17 +32,66 @@ if not fapro_bin:
 
 def fofa_query(ip):
     query = f'ip="{ip}"'.encode('ascii')
-    r = requests.get(url="https://fofa.so/api/v1/search/all",
+    r = requests.get(url="https://fofa.info/api/v1/search/all",
                      params={"email": fofa_email,
                              "key": fofa_key,
                              "size": 1000,
-                             "fields": "port,protocol,banner,cert",
+                             "fields": "port,protocol,banner,cert,header",
                              "qbase64": base64.b64encode(query)})
     if r.status_code == 200:
         return r.json()['results']
     else:
         print("error request fofa api:", r.text)
         return None
+
+
+def get_amqp_info(banner):
+    result = {}
+    copyright = re.search("copyright:(.*)[\r\n]?", banner)
+    host = re.search("cluster_name:(.*)[\r\n]?", banner)
+    platform = re.search("platform:(.*)[\r\n]?", banner)
+    product = re.search("product:(.*)[\r\n]?", banner)
+    version = re.search("version:(\d+.\d+.\d+)", banner)
+    if copyright: result['copyright'] = copyright.group(1)
+    result['host'] = host.group(1) if host else ""
+    result['platform'] = platform.group(1) if platform else ""
+    result['product'] = product.group(1) if product else ""
+    if version: result['version'] = version.group(1)
+    result['accounts'] = ["guest:guest"]
+    return result
+
+
+def get_bacnet_info(banner):
+    result = {}
+    vender_name = re.search("vendor_name:(.*)[\r\n]?", banner)
+    firmware_ver = re.search("firmware_version:(.*)[\r\n]?", banner)
+    object_name = re.search("object_name:(.*)[\r\n]?", banner)
+    model_name = re.search("model_name:(.*)[\r\n]?", banner)
+    if vender_name: result['vender_name'] = vender_name.group(1)
+    if firmware_ver: result['firmware_ver'] = firmware_ver.group(1)
+    if object_name: result['object_name'] = object_name.group(1)
+    if model_name: result['model_name'] = model_name.group(1)
+    return result
+
+
+def get_dcerpc_info(banner):
+    domain_name = ""
+    if 'NTLMSSP' in banner:
+        domain_name = re.search('DNS_Domain_Name:\s+(.*)', banner).group(1)
+    return {"accounts":["administrator:123456"], "domain_name": domain_name}
+
+
+def get_eos_info(header):
+    server_version = re.search('Server:\s+(.*)', header)
+    if server_version:
+        with open("eos.json", "w") as in_file:
+            in_file.write('{"code":404,"error":{"code":0,"details":[{"file":"http_plugin.cpp","line_number":244,'
+                          '"message":"Unknown Endpoint","method":"handle_http_request"}],"name":"exception",'
+                          '"what":"unspecified"},"message":"Not Found"}')
+        return {
+            "config_file": "eos.json",
+            "server_version": server_version.group(1).strip('\r')
+        }
 
 def get_cert_name(datas):
     for d in datas:
@@ -67,6 +116,38 @@ def get_mysql_version(data):
     if r:
         return r.group(1)
     return "5.5.62"
+
+
+def get_memcache_version(data):
+    r = re.search("STAT version (\d+\.\d+\.\d+)", data)
+    if r:
+        return r.group(1)
+    return "1.5.16"
+
+
+def get_pop3_version(data):
+    r = re.search("\+OK (.*) ready.", data)
+    if r:
+        return r.group(1)
+    return "Dovecot"
+
+
+def get_smtp_param(data):
+    data = data.replace('220-', '220 ')
+    params = data.split('\r\n')[0].split(' ')
+    if len(params) >= 3:
+        return {
+            "accounts": [
+                "admin:123456"
+            ],
+            "appname": params[2],
+            "auth": False,
+            "banner": params[3:],
+            "hostname": params[1],
+            "ssl": False,
+            "timeout": 3
+        }
+
 
 def get_ssh_version(data):
     r = re.search("(.*?)[\r\n]", data)
@@ -128,15 +209,16 @@ def get_upnp_info(banner):
     hdrs = parse_http_headers(banner)
     hdrs = {l[0]: l[1] for l in hdrs}
     max_age = 1800
-    if hdrs['cache-control']:
+    if 'cache-control' in hdrs and hdrs['cache-control']:
         ma = re.search('max-age=(\d+)', hdrs['cache-control'])
         if ma:
             max_age = int(ma.group(1))
-    return {'dev_location': hdrs['location'],
-            'dev_type': hdrs['st'],
-            'dev_usn': hdrs['usn'],
-            'max_age': max_age,
-            'server_version': hdrs['server'],}
+    if 'location' in hdrs:
+        return {'dev_location': hdrs['location'],
+                'dev_type': hdrs['st'],
+                'dev_usn': hdrs['usn'],
+                'max_age': max_age,
+                'server_version': hdrs['server'],}
 
 def get_sip_body(banner):
     body = re.search("\r\n\r\n(.*)$", banner, re.MULTILINE | re.DOTALL)
@@ -160,6 +242,12 @@ def get_postgres_auth(banner):
             return "none"
     return "none"
 
+def get_postgres_version(banner):
+    method = re.search("- VERSION: :\s+(.*),", banner)
+    if method:
+        return method.group(1)
+    return "14.0"
+
 def host_replace(url, new_ip):
     u = re.sub(r'(https?://)(.+?)(:\d+)?/(.*)',
                r'\1%s\3/\4',
@@ -175,7 +263,8 @@ def fapro_dump(url, app_name, p='http', deep = True):
     r = os.system(run)
     print("fapro dump return:", r)
 
-def gen_handlers(ip, port, service, banner, deep_dump=True):
+
+def gen_handlers(ip, port, service, banner, header, deep_dump=True):
     print(f'gen handler for {ip} - {port} - {service}')
     handler = {"port": port}
     if service == "http":
@@ -226,7 +315,7 @@ def gen_handlers(ip, port, service, banner, deep_dump=True):
     elif service == "postgres":
         handler['handler'] = 'postgres'
         handler['params'] = {"auth": get_postgres_auth(banner),
-                             "server_version": "14.0",
+                             "server_version": get_postgres_version(banner),
                              "accounts": ["postgres:123456", "root:postgres"]}
     elif service == "iec-104":
         handler['handler'] = 'iec104'
@@ -235,7 +324,20 @@ def gen_handlers(ip, port, service, banner, deep_dump=True):
         params = get_eip_info(banner)
         if params:
             handler['params'] = params
-    elif service in ["smtp", "pop3", "imap"]:
+    elif service == "pop3":
+        handler['handler'] = 'pop3'
+        params = get_pop3_version(banner)
+        if params:
+            handler['params'] = {
+                "accounts": ["admin:123456", "guest:guest"],
+                "server_version": params,
+                "ssl": False}
+    elif service == "smtp":
+        handler['handler'] = service
+        params = get_smtp_param(banner)
+        if params:
+            handler['params'] = params
+    elif service in ["smtp", "imap"]:
         handler['handler'] = service
         print(f'please config {service} params')
     elif service == "oracle":
@@ -249,18 +351,24 @@ def gen_handlers(ip, port, service, banner, deep_dump=True):
     elif service == "upnp":
         handler['handler'] = 'ssdp'
         ssdp_info = get_upnp_info(banner)
-        handler['params'] = ssdp_info
-        wemo_url = host_replace(ssdp_info['dev_location'], ip)
-        u = urlparse(wemo_url)
-        wemo_handler = {'port': u.port,
-                        'handler': 'wemo'}
-        app_name = f'wemo_{ip}_{u.port}'
-        fapro_dump(wemo_url, app_name, p='wemo')
-        if path.exists(app_name):
-            wemo_handler["params"] = {
-                "server_version": "OS 1.0 UPnP/1.0 Realtek/V1.0",
-                'fs_path': app_name}
-            return [handler, wemo_handler]
+        if ssdp_info:
+            handler['params'] = ssdp_info
+            wemo_url = host_replace(ssdp_info['dev_location'], ip)
+            u = urlparse(wemo_url)
+            wemo_handler = {'port': u.port,
+                            'handler': 'wemo'}
+            app_name = f'wemo_{ip}_{u.port}'
+            fapro_dump(wemo_url, app_name, p='wemo')
+            if os.path.exists('./webapps/%s' % app_name):
+                if 'server_version' in ssdp_info:
+                    wemo_handler["params"] = {
+                        "server_version": ssdp_info['server_version'],
+                        'fs_path': app_name}
+                else:
+                    wemo_handler["params"] = {
+                        "server_version": "OS 1.0 UPnP/1.0 Realtek/V1.0",
+                        'fs_path': app_name}
+                return [handler, wemo_handler]
     elif service == "coap":
         handler['handler'] = 'coap'
         app_name = f'coap_{ip}_{port}'
@@ -271,7 +379,32 @@ def gen_handlers(ip, port, service, banner, deep_dump=True):
             handler['params'] = {"config_file":app_conf}
         else:
             return
-    elif service in ["dns", "ntp", "s7", "snmp", "memcache", "vnc", "modbus",  "telnet", "rdp", "smb", "dcerpc", "dht", "bacnet", "nfs", "socks5",  "amqp", "onvif"]:
+    elif service == "amqp":
+        handler['handler'] = 'amqp'
+        params = get_amqp_info(banner)
+        if params:
+            handler['params'] = params
+    elif service == "bacnet":
+        handler['handler'] = 'bacnet'
+        params = get_bacnet_info(banner)
+        if params:
+            handler['params'] = params
+    elif service == "dcerpc":
+        handler['handler'] = 'dcerpc'
+        params = get_dcerpc_info(banner)
+        if params:
+            handler['params'] = params
+    elif service == "eos":
+        handler['handler'] = 'eos'
+        params = get_eos_info(header)
+        if params:
+            handler['params'] = params
+    elif service == "memcache":
+        handler['handler'] = 'memcache'
+        params = get_memcache_version(banner)
+        if params:
+            handler['params'] = {'server_version': params}
+    elif service in ["dns", "ntp", "s7", "snmp", "vnc", "modbus",  "telnet", "rdp", "smb", "dht", "nfs", "socks5", "onvif"]:
         handler['handler'] = service
     else:
         print(f'unsupport service {service}')
@@ -285,7 +418,7 @@ def clone_device(ip, hostname, store, deep_dump):
     proced = []
     for d in data:
         if d[1] and (not d[0] in proced):
-            hs = gen_handlers(ip, d[0], d[1], d[2], deep_dump)
+            hs = gen_handlers(ip, d[0], d[1], d[2], d[3], deep_dump)
             if hs:
                 handlers += hs
                 proced += [h['port'] for h in hs]
