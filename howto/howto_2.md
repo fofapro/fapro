@@ -71,6 +71,7 @@ By looking at the rdns information, you can determine that it should be the IP a
 | fofa.so              |         1 |        82 | 1,280,784 |      26 |        39 | 5,497,110 |
 | zoomeye.org          |         0 |         0 | 2,018,912 |       0 |         0 | 5,762,264 |
 | quake.360.cn         |         7 |        18 | 47        |       2 |       483 | 3,546,927 |
+| criminalip.io        |         0 |         0 | 0         |       0 |         0 | 3,809,324 |
 
 This tutorial will introduce a simple analysis of the collected logs and create rules to provide higher-level data to answer these questions.
 
