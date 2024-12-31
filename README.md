@@ -82,6 +82,9 @@ The goal is to support as many protocols as possible, and support as many deep i
   - [x] Cassandra
   - [x] RedLion-Crimson3
   - [x] PPTP
+  - [x] L2TP
+  - [x] Melsecq-discover
+  - [x] Winbox
 
 - Use TcpForward to forward network traffic
 - Support tcp syn logging

@@ -82,6 +82,9 @@ FaPro是一个服务端协议模拟工具,可以轻松启停多个网络服务�
   - [x] Cassandra
   - [x] RedLion-Crimson3
   - [x] PPTP
+  - [x] L2TP
+  - [x] Melsecq-discover
+  - [x] Winbox
 
 - 使用TcpForward进行端口转发
 - 支持tcp syn请求记录
